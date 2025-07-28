@@ -290,7 +290,7 @@
       document.querySelector(`.status-btn[onclick*="${status}"]`).classList.add('active');
       applyFilters();
     }
-  const socket = io("http://localhost:3000");
+  const socket = io("https://connecther.onrender.com");
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
   socket.emit("register", currentUser.username);
 
@@ -371,7 +371,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
   const chatSection = document.getElementById("chatSection");
 
-  fetch(`http://localhost:3000/api/friends/${currentUser.username}`)
+  fetch(`https://connecther.onrender.com/api/friends/${currentUser.username}`)
     .then(res => res.json())
     .then(friendList => {
 
@@ -402,7 +402,7 @@ window.addEventListener("DOMContentLoaded", () => {
       });
 
 
-fetch(`http://localhost:3000/api/messages/latest/${currentUser.username}`)
+fetch(`https://connecther.onrender.com/api/messages/latest/${currentUser.username}`)
   .then(res => res.json())
   .then(latestMessages => {
     console.log("🧪 LatestMessages from server:", latestMessages);

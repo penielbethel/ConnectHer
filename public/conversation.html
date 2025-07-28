@@ -765,7 +765,7 @@
 <!-- Ringtone for incoming call -->
 <audio id="ringtone" src="connectring.mp3" loop preload="auto"></audio>
 
-  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  <script src="https://connecther.onrender.com/socket.io/socket.io.js"></script>
 
 <script>
 const emojiPanel = document.getElementById("emojiPanel");
@@ -797,7 +797,7 @@ const username = urlParams.get("user"); // friend's username
 const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
 // 📡 Connect Socket.IO with current username in query
-const API = "http://localhost:3000";
+const API = "https://connecther.onrender.com";
 const socket = io(API, {
   query: { username: currentUser.username }
 });socket.emit("register", currentUser.username);

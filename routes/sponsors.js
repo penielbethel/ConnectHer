@@ -29,7 +29,7 @@ router.post(
   async (req, res) => {
     try {
       const { companyName, objectives } = req.body;
-      const logo = req.file ? `http://localhost:3000/uploads/${req.file.filename}` : null;
+      const logo = req.file ? `https://connecther.onrender.com/uploads/${req.file.filename}` : null;
 
       const newSponsor = new Sponsor({
         companyName,
@@ -74,7 +74,7 @@ router.put(
   async (req, res) => {
     try {
       const { caption, jobLink } = req.body;
-      const media = req.file ? `http://localhost:3000/uploads/${req.file.filename}` : null;
+      const media = req.file ? `https://connecther.onrender.com/uploads/${req.file.filename}` : null;
 
       const sponsor = await Sponsor.findById(req.params.id);
       if (!sponsor) return res.status(404).json({ message: "Sponsor not found" });
@@ -137,7 +137,7 @@ router.put("/:sponsorId/posts/:postId", verifyTokenAndRole(["admin", "superadmin
 
     if (req.body.caption) post.caption = req.body.caption;
     if (req.body.jobLink) post.jobLink = req.body.jobLink;
-    if (req.file) post.media = `http://localhost:3000/uploads/${req.file.filename}`;
+    if (req.file) post.media = `https://connecther.onrender.com/uploads/${req.file.filename}`;
 
     await sponsor.save();
     res.json({ message: "Post updated", post });

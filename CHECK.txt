@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Also restore any previously stored messages
   const chatArea = document.getElementById('chat-area');
 
-fetch(`http://localhost:3000/api/communities/${communityId}/messages?username=${currentUser.username}`)
+fetch(`https://connecther.onrender.com/api/communities/${communityId}/messages?username=${currentUser.username}`)
   .then(res => res.json())
   .then(data => {
     if (data.success && data.messages) {
@@ -152,7 +152,7 @@ fetch(`http://localhost:3000/api/communities/${communityId}/messages?username=${
 // ✅ Load community data fresh from backend
 async function loadCommunity() {
   try {
-    const res = await fetch(`http://localhost:3000/api/communities/${communityId}`);
+    const res = await fetch(`https://connecther.onrender.com/api/communities/${communityId}`);
     const data = await res.json();
 
     if (!data.success || !data.community) throw new Error(data.message || "Failed to fetch community");
@@ -169,7 +169,7 @@ async function loadCommunity() {
     renderMembers();
 
     // 👇 Load all messages for this community
-    const messageRes = await fetch(`http://localhost:3000/api/communities/${communityId}/messages?username=${currentUser.username}`);
+    const messageRes = await fetch(`https://connecther.onrender.com/api/communities/${communityId}/messages?username=${currentUser.username}`);
     const messageData = await messageRes.json();
 
     if (messageData.success) {
@@ -309,7 +309,7 @@ async function confirmExitCommunity() {
   if (!confirm("Are you sure you want to exit this community?")) return;
 
   try {
-    const res = await fetch(`http://localhost:3000/api/communities/${communityId}/leave`, {
+    const res = await fetch(`https://connecther.onrender.com/api/communities/${communityId}/leave`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username: currentUsername })
@@ -340,7 +340,7 @@ async function renderMembers() {
   container.innerHTML = "";
 
   try {
-    const res = await fetch(`http://localhost:3000/api/communities/${currentCommunity._id}/members`);
+    const res = await fetch(`https://connecther.onrender.com/api/communities/${currentCommunity._id}/members`);
     const data = await res.json();
 
     if (!data.success || !data.members) {
@@ -391,7 +391,7 @@ function promoteToAdmin(username) {
   }
 
   // Send request to backend
-  fetch(`http://localhost:3000/api/communities/${currentCommunity._id}/promote`, {
+  fetch(`https://connecther.onrender.com/api/communities/${currentCommunity._id}/promote`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -424,7 +424,7 @@ function demoteAdmin(username) {
     return alert("User is not an admin.");
   }
 
-  fetch(`http://localhost:3000/api/communities/${currentCommunity._id}/demote`, {
+  fetch(`https://connecther.onrender.com/api/communities/${currentCommunity._id}/demote`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username })
@@ -507,7 +507,7 @@ async function sendMessage() {
     selectedFiles.forEach(file => formData.append('files', file));
 
     try {
-      const uploadRes = await fetch('http://localhost:3000/api/upload', {
+      const uploadRes = await fetch('https://connecther.onrender.com/api/upload', {
         method: 'POST',
         body: formData
       });
@@ -553,7 +553,7 @@ formData.append("replyTo", message.replyTo);
 formData.append("time", message.time);
 formData.append("media", JSON.stringify(mediaFiles)); // ✅ Important fix
 
-fetch(`http://localhost:3000/api/communities/${currentCommunity._id}/messages`, {
+fetch(`https://connecther.onrender.com/api/communities/${currentCommunity._id}/messages`, {
   method: "POST",
   body: formData
 })
@@ -633,7 +633,7 @@ function confirmDelete(msgId) {
   // ⏳ After 4 seconds, delete from backend if still deleted
   setTimeout(() => {
     if (msg.classList.contains('deleted-temp')) {
-      fetch(`http://localhost:3000/api/communities/${communityId}/messages/${msgId}`, {
+      fetch(`https://connecther.onrender.com/api/communities/${communityId}/messages/${msgId}`, {
         method: "DELETE"
       })
       .then(res => res.json())
@@ -663,7 +663,7 @@ function undoDelete(msgId) {
 
   const restoredMessage = JSON.parse(backupData);
 
-  fetch(`http://localhost:3000/api/communities/${communityId}/messages`, {
+  fetch(`https://connecther.onrender.com/api/communities/${communityId}/messages`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -802,7 +802,7 @@ function saveEditedMessage(msgId) {
   const newText = input.value.trim();
   if (!newText) return;
 
-  fetch(`http://localhost:3000/api/communities/${communityId}/messages/${msgId}`, {
+  fetch(`https://connecther.onrender.com/api/communities/${communityId}/messages/${msgId}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json"
@@ -957,7 +957,7 @@ function toggleTopMenu() {
 function clearChat() {
   if (!confirm("Are you sure you want to clear all your messages in this community?")) return;
 
-  fetch(`http://localhost:3000/api/communities/${currentCommunity._id}/clear`, {
+  fetch(`https://connecther.onrender.com/api/communities/${currentCommunity._id}/clear`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username: currentUser.username })
@@ -1032,7 +1032,7 @@ function openFriendShareModal() {
   const friendList = document.getElementById("friendList");
   friendList.innerHTML = "Loading...";
 
-  fetch(`http://localhost:3000/api/friends/${currentUser.username}`)
+  fetch(`https://connecther.onrender.com/api/friends/${currentUser.username}`)
     .then(res => res.json())
     .then(friends => {
       if (!Array.isArray(friends) || friends.length === 0) {
@@ -1067,7 +1067,7 @@ function sendCommunityInvites() {
     return;
   }
 
-fetch("http://localhost:3000/api/community-invites/send", {
+fetch("https://connecther.onrender.com/api/community-invites/send", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
@@ -1233,7 +1233,7 @@ socket.on("stopTyping-community", ({ from }) => {
   }
 
   // ✅ Step 1: Load community info
-  fetch(`http://localhost:3000/api/communities/${communityId}`)
+  fetch(`https://connecther.onrender.com/api/communities/${communityId}`)
     .then(res => res.json())
     .then(data => {
       if (!data.success || !data.community) {
@@ -1266,7 +1266,7 @@ socket.on("stopTyping-community", ({ from }) => {
     joinBtn.disabled = true;
     joinBtn.textContent = "Joining...";
 
-    fetch(`http://localhost:3000/api/communities/${communityId}/join`, {
+    fetch(`https://connecther.onrender.com/api/communities/${communityId}/join`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

@@ -611,7 +611,7 @@
       const currentUser = JSON.parse(localStorage.getItem("currentUser"));
       if (!currentUser) return;
 
-      await fetch("http://localhost:3000/api/notifications/save-token", {
+      await fetch("https://connecther.onrender.com/api/notifications/save-token", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -661,7 +661,7 @@ console.log("👤 Current User Loaded:", currentUser);
 let lastFetched = Date.now();
 
 function autoRefreshFeed() {
-  fetch(`http://localhost:3000/api/posts/${currentUser.username}/feed`)
+  fetch(`https://connecther.onrender.com/api/posts/${currentUser.username}/feed`)
     .then(res => res.json())
     .then(posts => {
       // Filter only new posts
@@ -734,7 +734,7 @@ async function submitPost() {
 
   try {
     // First upload media to get compressed URLs
-    const uploadRes = await fetch("http://localhost:3000/api/upload", {
+    const uploadRes = await fetch("https://connecther.onrender.com/api/upload", {
       method: "POST",
       body: formData,
     });
@@ -757,7 +757,7 @@ async function submitPost() {
       }))
     };
 
-    const postRes = await fetch("http://localhost:3000/api/posts", {
+    const postRes = await fetch("https://connecther.onrender.com/api/posts", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -859,13 +859,13 @@ function truncateWords(text, wordLimit) {
 
 
 let acceptedFriends = [];
-fetch(`http://localhost:3000/api/users/${currentUser.username}/friends`)
+fetch(`https://connecther.onrender.com/api/users/${currentUser.username}/friends`)
   .then(res => res.json())
   .then(data => {
     acceptedFriends = data || [];
 
     // Load posts from backend so all users can see them
-fetch(`http://localhost:3000/api/posts/${currentUser.username}/feed`)
+fetch(`https://connecther.onrender.com/api/posts/${currentUser.username}/feed`)
   .then(res => res.json())
   .then(posts => {
     posts.forEach((post, index) => {
@@ -1037,7 +1037,7 @@ function editPost(index) {
   if (newCaption !== null && newCaption.trim() !== "") {
     post.caption = newCaption.trim();
 
-    fetch(`http://localhost:3000/api/posts/${post._id}`, {
+    fetch(`https://connecther.onrender.com/api/posts/${post._id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ caption: post.caption })
@@ -1059,7 +1059,7 @@ function deletePost(index) {
   const post = dummyPosts[index];
 
   if (confirm("Are you sure you want to delete this post?")) {
-    fetch(`http://localhost:3000/api/posts/${post._id}`, {
+    fetch(`https://connecther.onrender.com/api/posts/${post._id}`, {
       method: 'DELETE'
     })
     .then(() => {
@@ -1077,7 +1077,7 @@ function deletePost(index) {
 function sendFriendRequest(userName, button) {
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
-  fetch('http://localhost:3000/friend-request', {
+  fetch('https://connecther.onrender.com/friend-request', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -1131,7 +1131,7 @@ function sendFriendRequest(userName, button) {
 
 function likePost(index) {
   const post = dummyPosts[index];
-  fetch(`http://localhost:3000/api/posts/${post._id}/like`, {
+  fetch(`https://connecther.onrender.com/api/posts/${post._id}/like`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username: currentUser.username })
@@ -1190,7 +1190,7 @@ function submitComment(event, index) {
     const commentText = event.target.value.trim();
     const postId = dummyPosts[index]._id;
 
-    fetch(`http://localhost:3000/api/posts/${postId}/comment`, {
+    fetch(`https://connecther.onrender.com/api/posts/${postId}/comment`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1224,7 +1224,7 @@ function submitReply(event, postIndex, commentIndex) {
       return;
     }
 
-    fetch(`http://localhost:3000/api/posts/${postId}/comment/${commentIndex}/reply`, {
+    fetch(`https://connecther.onrender.com/api/posts/${postId}/comment/${commentIndex}/reply`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1270,7 +1270,7 @@ function replyToComment(link, postIndex, commentIndex) {
       const replyText = input.value.trim();
       const postId = dummyPosts[postIndex]._id;
 
-      fetch(`http://localhost:3000/api/posts/${postId}/comment/${commentIndex}/reply`, {
+      fetch(`https://connecther.onrender.com/api/posts/${postId}/comment/${commentIndex}/reply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1340,7 +1340,7 @@ function reshareToFeed() {
     username: currentUser.username
   };
 
-  fetch('http://localhost:3000/api/posts/reshare', {
+  fetch('https://connecther.onrender.com/api/posts/reshare', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(postData)
@@ -1487,7 +1487,7 @@ document.getElementById("communityButton").onclick = function handleCommunityRed
     return;
   }
 
-  fetch(`http://localhost:3000/api/communities/user/${encodeURIComponent(username)}`)
+  fetch(`https://connecther.onrender.com/api/communities/user/${encodeURIComponent(username)}`)
     .then(res => res.json())
     .then(data => {
       const owned = data.owned || [];
@@ -1520,7 +1520,7 @@ document.getElementById("searchInput").addEventListener("input", function () {
 
   if (query === "") return; // Don't search empty
 
-  fetch(`http://localhost:3000/api/posts/search/${encodeURIComponent(query)}`)
+  fetch(`https://connecther.onrender.com/api/posts/search/${encodeURIComponent(query)}`)
     .then(res => res.json())
     .then(results => {
       feedElement.innerHTML = ""; // Clear current feed
@@ -1538,7 +1538,7 @@ document.getElementById("searchInput").addEventListener("input", function () {
 
 
  // ✅ Add Socket.IO real-time notification handler
-const socket = io("http://localhost:3000");
+const socket = io("https://connecther.onrender.com");
 
 // ✅ Prevent duplicate listeners on reload
 if (currentUser?.username && !window.hasSocketRegistered) {
@@ -1566,7 +1566,7 @@ socket.on("incoming-group-call", ({ from, communityId, communityName }) => {
 
 
 function loadSuggestions() {
-  fetch(`http://localhost:3000/api/users/suggestions/${currentUser.username}`)
+  fetch(`https://connecther.onrender.com/api/users/suggestions/${currentUser.username}`)
     .then(res => res.json())
     .then(users => {
       const container = document.getElementById("suggestionContainer");

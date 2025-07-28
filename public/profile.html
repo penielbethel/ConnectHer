@@ -253,7 +253,7 @@ function fetchUserPosts(username, displayName) {
   postHeader.textContent = isOwner ? "Your Posts" : `Posts by ${displayName}`;
   postContainer.innerHTML = "<p>Loading...</p>";
 
-  fetch(`http://localhost:3000/api/posts/user/${username}`)
+  fetch(`https://connecther.onrender.com/api/posts/user/${username}`)
     .then(res => res.json())
     .then(posts => {
       if (!posts.length) {
@@ -514,7 +514,7 @@ if (avatarFile) {
   const uploadForm = new FormData();
   uploadForm.append("files", avatarFile);
 
-  const uploadRes = await fetch("http://localhost:3000/api/upload", {
+  const uploadRes = await fetch("https://connecther.onrender.com/api/upload", {
     method: "POST",
     body: uploadForm
   });
@@ -532,7 +532,7 @@ if (avatarFile) {
 
 
     try {
-  const res = await fetch(`http://localhost:3000/api/auth/update`, {
+  const res = await fetch(`https://connecther.onrender.com/api/auth/update`, {
     method: "PUT",
     body: formData
   });
@@ -612,7 +612,7 @@ localStorage.removeItem("allUsers");
 
   // If not found locally, fetch from backend
   try {
-    const res = await fetch(`http://localhost:3000/api/users/${username}`);
+    const res = await fetch(`https://connecther.onrender.com/api/users/${username}`);
     const data = await res.json();
 
 if (res.ok && data.user) {
