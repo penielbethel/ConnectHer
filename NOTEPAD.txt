@@ -1,0 +1,87 @@
+Read carefully this .txt file, it contains the full communication project, If you can Read, Understand And Digest it. Just tell me. YES or NO
+
+Answer Yes or No, Please Read the .txt carefully
+
+Please Read the last .txt Document I sent very very well over and over to help us do the following TASK
+- Let us do it step by like like a baby No Rush
+
+WE HAVE 4 TASKS
+
+Task 1: Auto-Refresh feed so that peoples's post will kepp rushing in
+Task 2: Search users/post on the Main Feed
+Task 3: The Notfication to Accept Friend Request has not yet been seen 
+Task 4: You will see the Chat UI is already done, Lets replace with real users from the back end, meaning  you are going to add "send message" button on the profile of other people, so that the send message can lead both of you to "conversation.html" correctly. And everybody that is your Friend by the virtue of accepting your request shall be on the "chat.html" list
+
+NB: Always indicate which file or page you are refering to per task and simplest how to
+
+
+I have a project that is alreafy 90% done, but I want to make the below adjustment(s)
+
+
+
+This is the structure of the Whole Project, which page/file should I send?
+
+Backend (Node.js / Express App)
+- server.js – Entry point for the backend server.
+- .env – Environment variables.
+- package.json – Lists dependencies and scripts.
+- package-lock.json – Lock file for npm dependencies.
+
+
+Models/ (Schema Definitions):
+- FriendRequest.js
+- Friendship.js
+- Message.js
+- Post.js
+- User.js
+- CallLog.js
+- Notification.js
+- Community.js
+- CommunityInvite.js
+- CommunityMessage.js
+- Sponsor.js
+- SponsorPost.js
+
+
+Routes (API Endpoints):
+routes/
+- admin
+- auth.js
+- delete.js
+- messages.js
+- posts.js
+- users.js
+- calls.js
+- communities.js
+- communityInvites.js
+- communityMessages.js
+- sponsors.js
+- stats.js
+- upload.js
+
+Middleware
+- verifyTokenAndRole
+
+Other:
+- uploads/ – Likely used for handling file uploads.
+
+
+public
+- dashboard.html: This is the Main Feed where post of users are populated globally.
+- accept.html: This is the page that carries the link/interface to join the invite from "community.html" which will lead them to "communitylist.html"
+- Chat.html: This page is the List of friends accepted by users or list of people that are friends of the currentuser, which leads to "conversation.html"
+- community.html: This is the chatting/conversation page of people from "communitylist.html"
+- communitylist.html: This page is the list of Communities created by currentuser and communities the current user belongs to or accepted to join.
+- conversation.html: This is the chatting/conversation page of mutual friends i.e users that have accepted each other's request
+- createcommunity.html: This is the page to create a community for the first time and subsequently.
+- getstartedcommunity.html: This is the introduction page for first-timer user wanting to create a community for the first time.
+- notification.html: This is the place where all notifications.
+- profile.html: This page is the profile page of users
+- index.html: This page is the Signup page for users to Register and enter the Feeds.
+- verification.html: This page is the security verification page before having access to "dashboard.html"
+- adminPanel.html: Where Admin cam mange the activities of the Users
+- superAdmin.html: The overall developer Panel
+- sponsors.html:
+- voicecall.html: handles community calls
+- sponsorsposts.html: 
+- Connectring.mp3: Ringing tone for the incoming Call
