@@ -124,17 +124,20 @@ router.post('/reshare', async (req, res) => {
       io.to(original.username).emit("new-notification", notification);
     }
 
-    const resharedPost = new Post({
-      name: user.name || `${user.firstName} ${user.surname}`,
-      username: user.username,
-      avatar: user.avatar,
-      caption: `Shared a post from ${original.name}`,
-      media: original.media,
-      likes: 0,
-      shares: 0,
-      comments: [],
-      likedBy: []
-    });
+const resharedPost = new Post({
+  name: user.name || `${user.firstName} ${user.surname}`,
+  username: user.username,
+  avatar: user.avatar,
+  caption: `Shared a post from ${original.name}${original.caption ? ': ' + original.caption : ''}`,
+  media: original.media,
+  contentType: original.contentType || "",
+  content: original.content || "",
+  likes: 0,
+  shares: 0,
+  comments: [],
+  likedBy: [],
+});
+
 
     await resharedPost.save();
     res.status(201).json(resharedPost);

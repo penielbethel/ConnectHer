@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Community</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="theme.css">
   <style>
     * {
       margin: 0;
@@ -22,6 +23,11 @@
       flex-direction: column;
       height: 100vh;
     }
+
+    body {
+  background-color: var(--bg);
+  color: var(--text);
+}
 
     /* Top Bar */
     .top-bar {
@@ -194,7 +200,6 @@
     .input-area button {
       background-color: #ff4081;
       border: none;
-      padding: 10px 14px;
       border-radius: 50%;
       color: white;
       font-size: 18px;
@@ -367,6 +372,43 @@
     color: #fff;
   }
 
+  .message-options {
+  position: absolute;
+  top: 4px;
+  right: 28px; /* space left of delete button */
+  cursor: pointer;
+  color: #aaa;
+  font-size: 14px;
+  z-index: 2;
+}
+
+.message-options-menu {
+  display: none;
+  position: absolute;
+  top: 20px;
+  right: 0;
+  background-color: #2a2a2a;
+  border-radius: 6px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  min-width: 100px;
+  z-index: 10;
+}
+
+.message-options-menu button {
+  width: 100%;
+  padding: 8px 10px;
+  background: none;
+  border: none;
+  text-align: left;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.message-options-menu button:hover {
+  background-color: #444;
+}
+
   </style>
 </head>
 <body>
@@ -396,55 +438,79 @@
 
   <!-- Chat Area -->
   <div id="typing-status" style="color:#aaa; font-size:12px; margin: 5px 15px;"></div>
-  <div class="chat-area" id="chat-area">
-  </div>
+  <div class="chat-area" id="chat-area"></div>
+
   <!-- Input Area -->
 <div class="input-area">
-  <input type="text" id="chat-input" placeholder="Message" />
+  
+  <textarea 
+  id="chat-input" 
+  placeholder="Message" 
+  rows="1"
+  style="
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+    border: none;
+    border-radius: 10px;
+    resize: none;
+    overflow: hidden;
+    background: #1a1a1a;
+    color: #fff;
+    line-height: 1.4;
+  "
+  oninput="autoExpand(this)"
+></textarea>
+
+<!-- Buttons Wrapper -->
+<div style="display: flex; align-items: center; gap: 8px; position: relative;">
 
   <!-- Attachment Button -->
-  <div style="position: relative;">
-    <button onclick="toggleAttachmentMenu()" style="background-color: transparent; margin-right: 8px;" title="Attach File">
-      <i class="fas fa-paperclip" style="color: #ccc;"></i>
-    </button>
+  <button onclick="toggleAttachmentMenu()" style="background-color: transparent;" title="Attach File">
+    <i class="fas fa-paperclip" style="color: #ccc; font-size: 18px;"></i>
+  </button>
 
-    <!-- Popup Menu -->
-<div id="attachment-menu" style="display: none; position: absolute; bottom: 50px; right: 0; background: #2a2a2a; border-radius: 8px; padding: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.6); z-index: 10; width: 200px;">
+  <!-- Send Button -->
+  <button onclick="sendMessage()" style="background-color: transparent;" title="Send Message">
+    <i class="fas fa-paper-plane" style="color: #ccc; font-size: 18px;"></i>
+  </button>
 
-  <!-- File Manager -->
-  <label class="attachment-option">
-    <i class="fas fa-folder-open"></i>
-    <span>File Manager</span>
-    <input type="file" accept="image/*,video/*,application/*" multiple hidden onchange="handleFile(event)">
-  </label>
+  <!-- Attachment Popup Menu -->
+  <div id="attachment-menu" style="display: none; position: absolute; bottom: 50px; left: 0; background: #2a2a2a; border-radius: 8px; padding: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.6); z-index: 10; width: 200px;">
 
-  <!-- Photo/Video -->
-  <label class="attachment-option">
-    <i class="fas fa-image"></i>
-    <span>Photo/Video</span>
-    <input type="file" accept="image/*,video/*" multiple hidden onchange="handleFile(event)">
-  </label>
+    <!-- File Manager -->
+    <label class="attachment-option" style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; cursor: pointer; color: #fff;">
+      <i class="fas fa-folder-open"></i>
+      <span>File Manager</span>
+      <input type="file" accept="image/*,video/*,application/*" multiple hidden onchange="handleFile(event)">
+    </label>
 
-  <!-- Camera -->
-  <label class="attachment-option">
-    <i class="fas fa-camera"></i>
-    <span>Camera</span>
-    <input type="file" accept="image/*,video/*" capture="environment" hidden onchange="handleFile(event)">
-  </label>
+    <!-- Photo/Video -->
+    <label class="attachment-option" style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; cursor: pointer; color: #fff;">
+      <i class="fas fa-image"></i>
+      <span>Photo/Video</span>
+      <input type="file" accept="image/*,video/*" multiple hidden onchange="handleFile(event)">
+    </label>
 
-  <!-- Document -->
-  <label class="attachment-option">
-    <i class="fas fa-file-alt"></i>
-    <span>Document</span>
-    <input type="file" accept=".mp3,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt" multiple hidden onchange="handleFile(event)">
-  </label>
+    <!-- Camera -->
+    <label class="attachment-option" style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; cursor: pointer; color: #fff;">
+      <i class="fas fa-camera"></i>
+      <span>Camera</span>
+      <input type="file" accept="image/*,video/*" capture="environment" hidden onchange="handleFile(event)">
+    </label>
 
+    <!-- Document -->
+    <label class="attachment-option" style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #fff;">
+      <i class="fas fa-file-alt"></i>
+      <span>Document</span>
+      <input type="file" accept=".mp3,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt" multiple hidden onchange="handleFile(event)">
+    </label>
+
+  </div>
 </div>
 
-  <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
-</div>
 <div id="file-preview" style="margin-top: 10px;"></div>
-
 <!-- Invite Modal -->
 <div id="inviteModal" style="
   display: none;
@@ -553,9 +619,10 @@
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 
   <script>
-
 let replyingMessageId = null; //NEWMEK
 
+localStorage.setItem("activePage", "community.html");
+localStorage.setItem("unreadCommunityCount", "0");
 
 // ✅ Load logged-in user
 const currentUser = JSON.parse(localStorage.getItem("currentUser")) || {
@@ -594,7 +661,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Also restore any previously stored messages
   const chatArea = document.getElementById('chat-area');
 
-fetch(`https://connecther.onrender.com/api/communities/${communityId}/messages?username=${currentUser.username}`)
+fetch(`http://localhost:3000/api/communities/${communityId}/messages?username=${currentUser.username}`)
   .then(res => res.json())
   .then(data => {
     if (data.success && data.messages) {
@@ -616,7 +683,7 @@ fetch(`https://connecther.onrender.com/api/communities/${communityId}/messages?u
 // ✅ Load community data fresh from backend
 async function loadCommunity() {
   try {
-    const res = await fetch(`https://connecther.onrender.com/api/communities/${communityId}`);
+    const res = await fetch(`http://localhost:3000/api/communities/${communityId}`);
     const data = await res.json();
 
     if (!data.success || !data.community) throw new Error(data.message || "Failed to fetch community");
@@ -634,106 +701,17 @@ async function loadCommunity() {
     renderMembers();
 
     // 👇 Load all messages for this community
-    const messageRes = await fetch(`https://connecther.onrender.com/api/communities/${communityId}/messages?username=${currentUser.username}`);
+    const messageRes = await fetch(`http://localhost:3000/api/communities/${communityId}/messages?username=${currentUser.username}`);
     const messageData = await messageRes.json();
 
     if (messageData.success) {
       const chatArea = document.getElementById("chat-area");
       chatArea.innerHTML = ""; // Clear old ones
 
-      messageData.messages.forEach(msg => {
-  const msgDiv = document.createElement("div");
-  msgDiv.className = msg.sender.username === currentUser.username ? "message you" : "message";
-  msgDiv.dataset.id = msg._id; // for delete/edit to work
-  msgDiv.dataset.timestamp = new Date(msg.time).getTime();
-  msgDiv.setAttribute("oncontextmenu", "event.preventDefault();");
-  msgDiv.setAttribute("ontouchstart", `startLongPress('${msg._id}')`);
-  msgDiv.setAttribute("ontouchend", `cancelLongPress()`);
-
-  // 🔒 Save raw message as backup for undo
-  msgDiv.dataset.backup = JSON.stringify(msg);
-
-  let inner = `<div class="sender">
-    <img src="${msg.sender.avatar}" style="width:24px;height:24px;border-radius:50%;margin-right:6px;vertical-align:middle;">
-    <strong><a href="profile.html?user=${msg.sender.username}" style="color:inherit;text-decoration:none;">${msg.sender.name}</a></strong>
-  </div>`;
-
-  if (msg.sender.username === currentUser.username) {
-    inner += `<span class="edit-btn" onclick="startEditMessage('${msg._id}')" style="margin-left: 10px; color: #ffa500;"><i class="fas fa-edit"></i></span>`;
-  }
-
-  if (msg.replyTo) {
-  inner += `<div 
-    class="reply-scroll"
-    data-replytext="${msg.replyTo.replace(/"/g, '&quot;')}"
-    style="background: #1f1f1f; padding: 6px 10px; font-size: 12px; border-left: 3px solid #25d366; margin-bottom: 6px; border-radius: 4px; color: #25d366; cursor: pointer;">
-    ${msg.replyTo}
-  </div>`;
-}
-
-
-  if (msg.text) {
-    inner += `<div class="text">${msg.text}</div>`;
-  }
-
-  // 📎 Media files
-  if (msg.media.length > 0) {
-    inner += `<div class="file-grid" style="display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); margin-top: 8px;">`;
-
-    msg.media.forEach(file => {
-      let fileHTML = '';
-
-      if (file.type.startsWith('image/')) {
-        fileHTML = `<a href="#" onclick="openPreview('${file.url}', '${file.name}'); return false;">
-          <div style="position: relative; width: 100%; padding-top: 100%; border-radius: 6px; overflow: hidden;">
-            <img src="${file.url}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;">
-          </div>
-        </a>`;
-      } else if (file.type.startsWith('video/')) {
-        fileHTML = `<a href="#" onclick="openPreview('${file.url}', '${file.name}'); return false;">
-          <div style="position: relative; width: 100%; padding-top: 100%; border-radius: 6px; overflow: hidden;">
-            <video src="${file.url}" muted autoplay loop style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;"></video>
-          </div>
-        </a>`;
-      } else if (file.type.startsWith('audio/')) {
-        fileHTML = `<audio controls style="width: 100%; border-radius: 6px;">
-            <source src="${file.url}" type="${file.type}">
-            Your browser does not support the audio element.
-        </audio>`;
-      } else {
-        fileHTML = `<a href="${file.url}" download="${file.name}" style="color: #fff;">
-          <i class="fas fa-file" style="margin-right: 5px;"></i> ${file.name}
-        </a>`;
-      }
-
-      inner += `<div>${fileHTML}${file.caption ? `<div style="font-size: 12px; color: #ccc;">${file.caption}</div>` : ''}</div>`;
-    });
-
-    inner += `</div>`;
-  }
-
-  inner += `
-    <div class="time">
-      ${new Date(msg.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-      <span class="delivery-status" style="display:inline-block; width:8px; height:8px; margin-left:6px; background:limegreen; border-radius:50%; vertical-align:middle;" data-status="seen"></span>
-    </div>`;
-
-  inner += `<div class="reply-btn" onclick="prepareReply(this)" style="font-size: 12px; color: #25d366; margin-top: 5px; cursor: pointer;">Reply</div>`;
-
-  if (msg.sender.username === currentUser.username) {
-    inner += `<span class="delete-btn" onclick="confirmDelete('${msg._id}')"><i class="fas fa-trash"></i></span>`;
-  }
-
-  msgDiv.innerHTML = inner;
-  msgDiv.dataset.backupHTML = msgDiv.innerHTML;
-
-  const textEl = msgDiv.querySelector('.text');
-  if (textEl) applyReadMore(textEl);
-
-  chatArea.appendChild(msgDiv);
-});
-
-
+messageData.messages
+  .filter(msg => !msg.hiddenFrom?.includes(currentUser.username))
+  .forEach(msg => renderMessage(msg));
+  
       // Auto-scroll to bottom
       chatArea.scrollTop = chatArea.scrollHeight;
     }
@@ -774,7 +752,7 @@ async function confirmExitCommunity() {
   if (!confirm("Are you sure you want to exit this community?")) return;
 
   try {
-    const res = await fetch(`https://connecther.onrender.com/api/communities/${communityId}/leave`, {
+    const res = await fetch(`http://localhost:3000/api/communities/${communityId}/leave`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username: currentUsername })
@@ -802,7 +780,7 @@ async function confirmExitCommunity() {
 function toggleGroupLock() {
   const lockNow = !currentCommunity.isLocked;
 
-  fetch(`https://connecther.onrender.com/api/communities/${currentCommunity._id}/lock`, {
+  fetch(`http://localhost:3000/api/communities/${currentCommunity._id}/lock`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -866,7 +844,7 @@ async function renderMembers() {
   container.innerHTML = "";
 
   try {
-    const res = await fetch(`https://connecther.onrender.com/api/communities/${currentCommunity._id}/members`);
+    const res = await fetch(`http://localhost:3000/api/communities/${currentCommunity._id}/members`);
     const data = await res.json();
 
     if (!data.success || !data.members) {
@@ -916,7 +894,7 @@ async function renderMembers() {
 function removeMember(target) {
   if (!confirm(`Remove ${target} from the community?`)) return;
 
-  fetch(`https://connecther.onrender.com/api/communities/${currentCommunity._id}/remove-member`, {
+  fetch(`http://localhost:3000/api/communities/${currentCommunity._id}/remove-member`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username: currentUsername, target })
@@ -951,7 +929,7 @@ function promoteToAdmin(username) {
   }
 
   // Send request to backend
-  fetch(`https://connecther.onrender.com/api/communities/${currentCommunity._id}/promote`, {
+  fetch(`http://localhost:3000/api/communities/${currentCommunity._id}/promote`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -984,7 +962,7 @@ function demoteAdmin(username) {
     return alert("User is not an admin.");
   }
 
-  fetch(`https://connecther.onrender.com/api/communities/${currentCommunity._id}/demote`, {
+  fetch(`http://localhost:3000/api/communities/${currentCommunity._id}/demote`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username })
@@ -1043,7 +1021,26 @@ function handleFile(event) {
     preview.innerHTML += `
       <div style="margin-bottom: 10px; background: #2a2a2a; padding: 8px; border-radius: 6px;">
         ${mediaPreview}
-        <input type="text" placeholder="Write caption..." data-index="${index}" class="caption-input" style="margin-top: 5px; width: 100%; padding: 5px; border-radius: 6px; border: none; background: #3a3a3a; color: white;">
+        <textarea 
+  placeholder="Write caption..." 
+  data-index="${index}" 
+  class="caption-input" 
+  style="
+    margin-top: 5px; 
+    width: 100%; 
+    padding: 8px; 
+    border-radius: 6px; 
+    border: none; 
+    background: #3a3a3a; 
+    color: white; 
+    resize: none; 
+    overflow: hidden; 
+    font-family: Arial, sans-serif; 
+    font-size: 15px; 
+    line-height: 1.4;
+  " 
+  oninput="autoExpand(this)"
+></textarea>
       </div>`;
   });
 }
@@ -1067,7 +1064,7 @@ async function sendMessage() {
     selectedFiles.forEach(file => formData.append('files', file));
 
     try {
-      const uploadRes = await fetch('https://connecther.onrender.com/api/upload', {
+      const uploadRes = await fetch('http://localhost:3000/api/upload', {
         method: 'POST',
         body: formData
       });
@@ -1113,7 +1110,7 @@ formData.append("replyTo", message.replyTo);
 formData.append("time", message.time);
 formData.append("media", JSON.stringify(mediaFiles)); // ✅ Important fix
 
-fetch(`https://connecther.onrender.com/api/communities/${currentCommunity._id}/messages`, {
+fetch(`http://localhost:3000/api/communities/${currentCommunity._id}/messages`, {
   method: "POST",
   body: formData
 })
@@ -1193,7 +1190,7 @@ function confirmDelete(msgId) {
 // ⏳ After 4 seconds, delete from backend if still deleted
 setTimeout(() => {
   if (msg.classList.contains('deleted-temp')) {
-    fetch(`https://connecther.onrender.com/api/communities/${communityId}/messages/${msgId}`, {
+    fetch(`http://localhost:3000/api/communities/${communityId}/messages/${msgId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json"
@@ -1235,7 +1232,7 @@ function undoDelete(msgId) {
   formData.append("time", restored.time);
   formData.append("media", JSON.stringify(restored.media || []));
 
-  fetch(`https://connecther.onrender.com/api/communities/${communityId}/messages`, {
+  fetch(`http://localhost:3000/api/communities/${communityId}/messages`, {
     method: "POST",
     body: formData
   })
@@ -1312,22 +1309,28 @@ function closePreview() {
 }
 let replyTo = null;
 
-//PREPARE REPLY NEWMEK 
-function prepareReply(buttonElement) {
-  const messageBox = buttonElement.closest('.message');
 
-  replyingMessageId = messageBox.dataset.id; // ✅ New line
+// ✅ Used by inline reply or simulated by 3-dots menu NEWMEK
+function prepareReply(sourceElement) {
+  const messageBox = sourceElement.classList.contains('message')
+    ? sourceElement
+    : sourceElement.closest('.message');
+
+  if (!messageBox) return;
+
+  replyingMessageId = messageBox.dataset.id;
+
+  const textEl = messageBox.querySelector('.text, .message-body');
+  const mediaEl = messageBox.querySelector('.file-grid img, .file-grid video');
 
   let previewHTML = "";
+  let referenceText = "";
 
-  // Try to get text content first
-  const textEl = messageBox.querySelector('.text, .message-body');
   if (textEl) {
-    previewHTML = `<div style="color:#ccc;font-size:13px;">${textEl.innerText}</div>`;
+    referenceText = textEl.innerText.trim();
+    previewHTML = `<div style="color:#ccc;font-size:13px;">${referenceText}</div>`;
   }
 
-  // If media is present, use thumbnail preview
-  const mediaEl = messageBox.querySelector('.file-grid img, .file-grid video');
   if (mediaEl) {
     const src = mediaEl.src || mediaEl.getAttribute('src');
     const isVideo = mediaEl.tagName.toLowerCase() === "video";
@@ -1342,21 +1345,32 @@ function prepareReply(buttonElement) {
         <div style="flex:1;color:#ccc;font-size:13px;">Media</div>
       </div>
     `;
+    if (!referenceText) {
+      referenceText = "Media message";
+    }
   }
 
-  // Set the reply reference text (still needed for backend)
-  replyTo = textEl?.innerText || "Media message";
+  replyTo = referenceText;
   document.getElementById('reply-text').innerHTML = previewHTML;
   document.getElementById('reply-preview').style.display = 'block';
 }
-
-
-
 
 function cancelReply() {
   replyTo = null;
   document.getElementById('reply-preview').style.display = 'none';
 }
+// ✅ Used inside 3-dots dropdown to trigger the above
+function prepareReplyFromMenu(msgId) {
+  const messageBox = document.querySelector(`[data-id="${msgId}"]`);
+  if (!messageBox) return;
+  // Call prepareReply() directly using the message div
+  prepareReply(messageBox);
+}
+
+
+
+
+
 function startEditMessage(msgId) {
   const msg = document.querySelector(`[data-id="${msgId}"]`);
   if (!msg) return;
@@ -1371,28 +1385,51 @@ function startEditMessage(msgId) {
 
   if (msg.querySelector('.edit-input') || msg.querySelector('.edit-controls')) return;
 
-  const textEl = msg.querySelector('.text');
+  const textEl = msg.querySelector('.text, .message-body');
   if (!textEl) return;
 
   const originalText = textEl.innerText.replace(' (edited)', '');
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.value = originalText;
-  input.className = 'edit-input';
-  input.style = 'width: 100%; padding: 6px; margin-top: 6px; border-radius: 6px; background: #444; color: white; border: none;';
 
-  textEl.replaceWith(input);
+  const textarea = document.createElement('textarea');
+  textarea.value = originalText;
+  textarea.className = 'edit-input';
+  textarea.style = `
+    width: 100%;
+    padding: 8px;
+    font-size: 15px;
+    font-family: Arial, sans-serif;
+    border: none;
+    border-radius: 10px;
+    resize: none;
+    overflow: hidden;
+    background: #444;
+    color: white;
+    line-height: 1.4;
+    margin-top: 6px;
+  `;
+  textarea.rows = 1;
+  textarea.setAttribute('oninput', 'autoExpand(this)');
 
-  const editBtn = msg.querySelector('.edit-btn');
+  textEl.replaceWith(textarea);
+
   const controls = document.createElement('span');
   controls.className = 'edit-controls';
-  controls.style = 'margin-left: 8px;';
+  controls.style = 'margin-top: 6px; display: block;';
   controls.innerHTML = `
-    <button onclick="saveEditedMessage('${msgId}')" style="background:#25d366;color:white;border:none;padding:2px 6px;border-radius:6px;font-size:11px;">Save</button>
-    <button onclick="cancelEditMessage('${msgId}', \`${originalText.replace(/`/g, '\\`')}\`)" style="background:#ff4d4d;color:white;border:none;padding:2px 6px;border-radius:6px;font-size:11px;margin-left:4px;">Cancel</button>
+    <button onclick="saveEditedMessage('${msgId}')" style="background:#25d366;color:white;border:none;padding:4px 10px;border-radius:6px;font-size:12px;">Save</button>
+    <button onclick="cancelEditMessage('${msgId}', \`${originalText.replace(/`/g, '\\`')}\`)" style="background:#ff4d4d;color:white;border:none;padding:4px 10px;border-radius:6px;font-size:12px;margin-left:8px;">Cancel</button>
   `;
-  editBtn.insertAdjacentElement('afterend', controls);
+
+  // Try to insert after dropdown menu if exists
+  const menu = msg.querySelector('.message-options');
+  if (menu) {
+    menu.insertAdjacentElement('afterend', controls);
+  } else {
+    msg.appendChild(controls); // fallback
+  }
 }
+
+
 
 function saveEditedMessage(msgId) {
   const msg = document.querySelector(`[data-id="${msgId}"]`);
@@ -1402,7 +1439,7 @@ function saveEditedMessage(msgId) {
   const newText = input.value.trim();
   if (!newText) return;
 
-  fetch(`https://connecther.onrender.com/api/communities/${communityId}/messages/${msgId}`, {
+  fetch(`http://localhost:3000/api/communities/${communityId}/messages/${msgId}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json"
@@ -1465,22 +1502,28 @@ function renderMessage(message) {
           ${message.sender.name}
         </a>
       </strong>
-    </div>
-  `;
+    </div>`;
 
-  if (isCurrentUser) {
+//3-DOT MENU NEWMEK
     inner += `
-      <span class="edit-btn" onclick="startEditMessage('${message._id}')" style="margin-left: 10px; color: #ffa500; cursor: pointer;">
-        <i class="fas fa-edit"></i>
-      </span>
-      <span class="delete-btn" onclick="confirmDelete('${message._id}')" style="margin-left: 10px; color: #f00; cursor: pointer;">
-        <i class="fas fa-trash"></i>
-      </span>
-    `;
-  }
+  <div class="message-options" onclick="toggleMessageOptions('${message._id}', event)">
+    <i class="fas fa-ellipsis-h"></i>
+    <div class="message-options-menu" id="options-menu-${message._id}">
+      ${isCurrentUser ? `
+        <button onclick="startEditMessage('${message._id}')">✏️ Edit</button>
+        <button onclick="prepareReplyFromMenu('${message._id}')">💬 Reply</button>
+      ` : `
+        <button onclick="prepareReplyFromMenu('${message._id}')">💬 Reply</button>
+      `}
+    </div>
+  </div>`;
+if (isCurrentUser) {
+  inner += `
+    <span class="delete-btn" onclick="confirmDelete('${message._id}')">
+      <i class="fas fa-trash"></i>
+    </span>`;}
 
-
-//NEWMEK
+//REPLY TO NEWMEK
   if (message.replyTo) {
     inner += `<div 
       class="reply-scroll"
@@ -1530,15 +1573,11 @@ function renderMessage(message) {
 
       inner += `<div>${fileHTML}${file.caption ? `<div style="font-size: 12px; color: #ccc;">${file.caption}</div>` : ''}</div>`;
     });
-
-    inner += `</div>`;
   }
-
   inner += `
     <div class="time">
       ${timeString}
     </div>
-    <div class="reply-btn" onclick="prepareReply(this)" style="font-size: 12px; color: #25d366; margin-top: 5px; cursor: pointer;">Reply</div>
   `;
 
   msg.innerHTML = inner;
@@ -1561,7 +1600,7 @@ function toggleTopMenu() {
 function clearChat() {
   if (!confirm("Are you sure you want to clear all your messages in this community?")) return;
 
-  fetch(`https://connecther.onrender.com/api/communities/${currentCommunity._id}/clear`, {
+  fetch(`http://localhost:3000/api/communities/${currentCommunity._id}/clear`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username: currentUser.username })
@@ -1636,7 +1675,7 @@ function openFriendShareModal() {
   const friendList = document.getElementById("friendList");
   friendList.innerHTML = "Loading...";
 
-  fetch(`https://connecther.onrender.com/api/friends/${currentUser.username}`)
+  fetch(`http://localhost:3000/api/friends/${currentUser.username}`)
     .then(res => res.json())
     .then(friends => {
       if (!Array.isArray(friends) || friends.length === 0) {
@@ -1671,7 +1710,7 @@ function sendCommunityInvites() {
     return;
   }
 
-fetch("https://connecther.onrender.com/api/community-invites/send", {
+fetch("http://localhost:3000/api/community-invites/send", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
@@ -1718,11 +1757,22 @@ document.addEventListener("click", function (e) {
 
 socket.on("community-message", (msg) => {
   if (msg.sender?.username === currentUser.username) return; // Avoid re-rendering own message
+
   renderMessage(msg); // Instantly show received message
-   // ✅ Auto-scroll to bottom after new incoming message
+
+  // ✅ Auto-scroll to bottom after new incoming message
   const chatArea = document.getElementById("chat-area");
   chatArea.scrollTop = chatArea.scrollHeight;
+
+  // 🔊 Play notification sound
+  const sound = document.getElementById("communitySound");
+  if (sound) {
+    sound.play().catch((err) => {
+      // Autoplay block (common in Chrome); ignore silently
+    });
+  }
 });
+
 
 const typingStatus = document.getElementById("typing-status");
 socket.on("typing-community", ({ from }) => {
@@ -1816,7 +1866,7 @@ async function submitEditCommunity() {
     uploadData.append("files", file);
 
     try {
-      const res = await fetch("https://connecther.onrender.com/api/upload", {
+      const res = await fetch("http://localhost:3000/api/upload", {
         method: "POST",
         body: uploadData
       });
@@ -1840,7 +1890,7 @@ async function submitEditCommunity() {
     avatar: avatarUrl
   };
 
-  fetch(`https://connecther.onrender.com/api/communities/${currentCommunity._id}/edit`, {
+  fetch(`http://localhost:3000/api/communities/${currentCommunity._id}/edit`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(updatePayload)
@@ -1932,7 +1982,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Avoid duplicate connections
   if (!window.rejoinSocket) {
-    window.rejoinSocket = io("https://connecther.onrender.com", { transports: ["websocket"] });
+    window.rejoinSocket = io("http://localhost:3000", { transports: ["websocket"] });
   }
   const rejoinSocket = window.rejoinSocket;
 
@@ -2070,11 +2120,35 @@ function performSearch() {
   }
 }
 
+//Auto Expand text-area
+ function autoExpand(textarea) {
+    textarea.style.height = 'auto';
+    textarea.style.height = (textarea.scrollHeight) + 'px';
+  }
+  const floatingInput = document.getElementById('floating-input');
+  const inputField = document.getElementById('chat-floating');
 
+//Drop down for messsage option
+function toggleMessageOptions(id, event) {
+  if (event) event.stopPropagation();
+  const menu = document.getElementById(`options-menu-${id}`);
+  if (!menu) return;
+
+  // Hide any other open menus
+  document.querySelectorAll('.message-options-menu').forEach(el => {
+    if (el !== menu) el.style.display = 'none';
+  });
+
+  menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+}
+
+document.addEventListener("click", function (e) {
+  if (!e.target.closest('.message-options')) {
+    document.querySelectorAll('.message-options-menu').forEach(el => el.style.display = 'none');
+  }
+});
 
 </script>
-
-
 <!-- ✅ tag to edit community -->
 <div id="editCommunityModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#000a; justify-content:center; align-items:center; z-index:999;">
   <div style="background:#1e1e1e; padding:20px; border-radius:10px; width:90%; max-width:400px;">
@@ -2089,7 +2163,6 @@ function performSearch() {
   </div>
 </div>
 
-
 <div id="callingModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; justify-content:center; align-items:center; flex-direction:column;">
   <h2 style="color:white;">Calling <span id="callingCommunityName"></span>...</h2>
   <p style="color:#ccc;">Waiting for members to join</p>
@@ -2103,15 +2176,11 @@ function performSearch() {
   bottom: 30px;
   left: 50%;
   transform: translateX(-50%);
-  width: 60px;
-  height: 60px;
-  background: #ff4081;
   color: white;
   border: none;
   border-radius: 50%;
   font-size: 22px;
   z-index: 10000;
-  box-shadow: 0 0 10px rgba(255, 64, 129, 0.5);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -2131,7 +2200,7 @@ function performSearch() {
   </div>
 </div>
 
-
+<script src="theme.js" defer></script>
 </body>
 </html>
 

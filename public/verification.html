@@ -11,6 +11,10 @@
       background-color: #ffffff;
       color: #111;
     }
+    body {
+  background-color: var(--bg);
+  color: var(--text);
+}
     .container {
       max-width: 480px;
       margin: 0 auto;
@@ -177,7 +181,7 @@
       </div>
     </div>
   </div>
-
+<link rel="stylesheet" href="theme.css">
   <script>
     function toggleSection(type) {
       const faceSection = document.getElementById('camera-section');
@@ -273,5 +277,6 @@ localStorage.setItem("currentUser", JSON.stringify(user));
       });
   }
   </script>
+  <script src="theme.js" defer></script>
 </body>
 </html>

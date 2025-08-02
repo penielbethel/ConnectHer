@@ -4,6 +4,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ConnectHer - Home Feed</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="theme.css">
   <style>
     * {
       margin: 0;
@@ -20,6 +21,24 @@
       padding-bottom: 70px;
     }
 
+:root {
+  --bg: #0e0e0e;
+  --text: #ffcce6;
+}
+
+.light-theme {
+  --bg: #fff;
+  --text: #222;
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  transition: background 0.3s, color 0.3s;
+}
+
     .top-nav {
       display: flex;
       justify-content: space-around;
@@ -29,7 +48,7 @@
       border-top-right-radius: 0;
       border-bottom-left-radius: 10px;
       border-bottom-right-radius: 10px;
-      padding: 12px 0;
+      padding: 14px 0;
       position: sticky;
       top: 0;
       z-index: 10;
@@ -65,7 +84,6 @@
   box-shadow: 0 0 5px rgba(255, 105, 180, 0.6); /* Subtle pink glow */
   padding: 2px; /* Slight spacing between image and border */
 }
-
 
     .post-composer input[type="text"] {
       flex: 1;
@@ -479,23 +497,127 @@
     transform: translateX(0);
   }
 }
+
+.nav-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin: 0 6px;
+  transition: background 0.3s ease;
+  position: relative; /* Make it a positioned parent */
+}
+
+.nav-icon i {
+  font-size: 18px;
+  color: #fff;
+}
+
+.notification-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  height: 10px;
+  width: 10px;
+  background-color: #00ff00;
+  border-radius: 50%;
+  display: none; /* Hidden by default */
+  box-shadow: 0 0 4px rgba(0, 255, 0, 0.7);
+}
+
+.message-count-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  background-color: red;
+  color: white;
+  font-size: 11px;
+  font-weight: bold;
+  border-radius: 10px;
+  text-align: center;
+  display: none;
+}
+
+.nav-icon:hover {
+  background: rgba(255, 255, 255, 0.12); /* Slight hover glow */
+}
+
+.nav-icon.active {
+  background: rgba(255, 255, 255, 0.2); /* Highlight active */
+}
+
+.post-options {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+}
+
+.post-options i {
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+}
+
+.post-dropdown-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  background: #333;
+  color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 6px rgba(0,0,0,0.3);
+  margin-top: 6px;
+  min-width: 120px;
+}
+
+.post-dropdown-menu div {
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
   </style>
 </head>
-<body>
-   <div style="background:#0e0e0e;padding:15px 20px 5px;font-size:30px;font-weight:bold;color:#ffcce6;">
-    ConnectHer
-  </div>
-  
-  <div class="top-nav" style="margin-top:10px;">
-    <div class="active"><i class="fas fa-home"></i><br>Home</div>
-    <div onclick="window.location.href='Chat.html'"><i class="fas fa-comments"></i><br>Chat</div>
-    <div id="communityButton" style="cursor:pointer;">
-  <i class="fas fa-users"></i><br>Community
-</div>
-    <div onclick="window.location.href='notification.html'"><i class="fas fa-bell"></i><br>Notifications</div>
-    <div onclick="window.location.href='sponsors.html'" style="cursor: pointer;"><i class="fas fa-handshake-angle"></i><br>Sponsors</div>
 
+<body>
+<div style="background:#0e0e0e;padding:15px 20px 5px;font-size:30px;font-weight:bold;color:#ffcce6; display: flex; justify-content: space-between; align-items: center;">
+  <span>ConnectHer</span>
+  <div style="display: flex; align-items: center; gap: 15px;">
+<button id="adminPanelBtn" title="Admin Panel"
+  onclick="redirectAdminPanel()"
+  style="background: none; border: none; font-size: 22px; color: #ffcce6; cursor: pointer;">
+  <i class="fas fa-user-gear"></i>
+</button>
+    <button id="themeToggle" title="Toggle Theme" style="background: none; border: none; font-size: 22px; color: #ffcce6; cursor: pointer;">
+      <i class="fas fa-moon"></i>
+    </button>
   </div>
+</div>
+
+  <div class="top-nav" style="margin-top:10px;">
+    <div class="nav-icon active"><i class="fas fa-home"></i></div>
+<div class="nav-icon" onclick="openChatPage()">
+  <i class="fas fa-comments"></i>
+  <span class="message-count-badge" id="chatBadge">0</span>
+</div>
+<div class="nav-icon" id="communityButton" onclick="openCommunityPage()">
+  <i class="fas fa-users"></i>
+  <span class="message-count-badge" id="communityBadge">0</span>
+</div>
+<div class="nav-icon" onclick="openNotificationPage()">
+  <i class="fas fa-bell"></i>
+  <span class="notification-dot" id="notifDot"></span>
+</div>
+<div class="nav-icon" onclick="window.location.href='sponsors.html'"><i class="fas fa-handshake-angle"></i></div>
+  </div>
+
 
 <div style="padding: 10px; position: relative;">
   <i class="fa fa-search" style="
@@ -527,9 +649,11 @@
     <input type="text" id="statusText" placeholder="What is on your mind?" onclick="openModal()">
   </div>
 
-  <h3 style="color: #fff; margin-top: 20px;">
-  <i class="fa-solid fa-user-group" style="color: #ff6fa8; margin-right: 8px;"></i> People You May Know
-</h3>
+<h4 style="color: #ef99ef; margin-top: 20px;">
+  <i class="fa-solid fa-user-group" style="color: #ce1797; margin-left: 8px; padding-right: 8px;"></i>
+  People You May Know
+</h4>
+
 
 
 <div style="overflow-x: auto; white-space: nowrap; padding: 10px; scroll-behavior: smooth;" id="suggestionContainer" class="suggestion-scrollbar"></div>
@@ -577,7 +701,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
 
 
-  <script>  
+  <script> 
  // FIREBASE script
  const firebaseConfig = {
     apiKey: "AIzaSyCsQwg0D4gH1xCUiBmVi-nKoSEGHNy40yY",
@@ -611,7 +735,7 @@
       const currentUser = JSON.parse(localStorage.getItem("currentUser"));
       if (!currentUser) return;
 
-      await fetch("https://connecther.onrender.com/api/notifications/save-token", {
+      await fetch("http://localhost:3000/api/notifications/save-token", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -661,7 +785,7 @@ console.log("👤 Current User Loaded:", currentUser);
 let lastFetched = Date.now();
 
 function autoRefreshFeed() {
-  fetch(`https://connecther.onrender.com/api/posts/${currentUser.username}/feed`)
+  fetch(`http://localhost:3000/api/posts/${currentUser.username}/feed`)
     .then(res => res.json())
     .then(posts => {
       // Filter only new posts
@@ -734,7 +858,7 @@ async function submitPost() {
 
   try {
     // First upload media to get compressed URLs
-    const uploadRes = await fetch("https://connecther.onrender.com/api/upload", {
+    const uploadRes = await fetch("http://localhost:3000/api/upload", {
       method: "POST",
       body: formData,
     });
@@ -757,7 +881,7 @@ async function submitPost() {
       }))
     };
 
-    const postRes = await fetch("https://connecther.onrender.com/api/posts", {
+    const postRes = await fetch("http://localhost:3000/api/posts", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -785,11 +909,6 @@ async function submitPost() {
     alert("Error submitting post.");
   }
 }
-
-
-
-
-
 
 function formatTimeAgo(isoTime) {
   // ⛔ Check if time is missing or null
@@ -850,7 +969,6 @@ function renderComments(postIndex, comments) {
   });
 }
 
-
 function truncateWords(text, wordLimit) {
   const words = text.trim().split(/\s+/);
   if (words.length <= wordLimit) return text;
@@ -859,13 +977,13 @@ function truncateWords(text, wordLimit) {
 
 
 let acceptedFriends = [];
-fetch(`https://connecther.onrender.com/api/users/${currentUser.username}/friends`)
+fetch(`http://localhost:3000/api/users/${currentUser.username}/friends`)
   .then(res => res.json())
   .then(data => {
     acceptedFriends = data || [];
 
     // Load posts from backend so all users can see them
-fetch(`https://connecther.onrender.com/api/posts/${currentUser.username}/feed`)
+fetch(`http://localhost:3000/api/posts/${currentUser.username}/feed`)
   .then(res => res.json())
   .then(posts => {
     posts.forEach((post, index) => {
@@ -900,57 +1018,47 @@ if (targetPostId && post._id === targetPostId) {
     alert("Error loading posts.");
     console.error(err);
   });
-
-
-
   })
   .catch(err => {
     console.error("❌ Failed to load friends", err);
   });
 
 
-
     function renderPost(post, index, prepend = false) {
-let friendButton = "";
+  let friendButton = "";
 
-if (post.username !== currentUser.username) {
-  const friendRequests = JSON.parse(localStorage.getItem("friendRequests") || "{}");
-  const pendingTo = friendRequests[post.username] || [];
-  const requestSent = pendingTo.includes(currentUser.username);
-  const isFriend = acceptedFriends.includes(post.username);
+  if (post.username !== currentUser.username) {
+    const friendRequests = JSON.parse(localStorage.getItem("friendRequests") || "{}");
+    const pendingTo = friendRequests[post.username] || [];
+    const requestSent = pendingTo.includes(currentUser.username);
+    const isFriend = acceptedFriends.includes(post.username);
 
-  if (!isFriend && !requestSent) {
-    friendButton = `<button class="add-friend-btn" onclick="sendFriendRequest('${post.username}', this)">Add Friend</button>`;
-  } else if (requestSent) {
-    friendButton = `<button class="add-friend-btn sent" disabled>Request Sent</button>`;
+    if (!isFriend && !requestSent) {
+      friendButton = `<button class="add-friend-btn" onclick="sendFriendRequest('${post.username}', this)">Add Friend</button>`;
+    } else if (requestSent) {
+      friendButton = `<button class="add-friend-btn sent" disabled>Request Sent</button>`;
+    }
   }
-}
 
-
-const profileLink = post.username ? `profile.html?user=${post.username}` : "#";
+  const profileLink = post.username ? `profile.html?user=${post.username}` : "#";
   const uniqueId = `carousel-${Date.now()}-${index}`;
   let mediaHtml = `<div class="media-carousel" id="${uniqueId}"><div class="carousel-track">`;
 
-if (post.media) {
-  post.media.forEach((file) => {
-if (file.type.startsWith("image/")) {
-  mediaHtml += `<div class="carousel-item">
-    <img src="${file.url}" alt="Image" onerror="this.style.display='none';">
-  </div>`;
-} else if (file.type.startsWith("video/")) {
-  mediaHtml += `<div class="carousel-item">
-    <video controls src="${file.url}" onerror="this.style.display='none';"></video>
-  </div>`;
-}
-
-    
-    else if (file.type === "application/pdf") {
-      mediaHtml += `<div class="carousel-item"><iframe src="${file.url}" style="height:250px;"></iframe></div>`;
-    }
-  });
-}
-  
-  else {
+  if (post.media) {
+    post.media.forEach((file) => {
+      if (file.type.startsWith("image/")) {
+        mediaHtml += `<div class="carousel-item">
+          <img src="${file.url}" alt="Image" onerror="this.style.display='none';">
+        </div>`;
+      } else if (file.type.startsWith("video/")) {
+        mediaHtml += `<div class="carousel-item">
+          <video controls src="${file.url}" onerror="this.style.display='none';"></video>
+        </div>`;
+      } else if (file.type === "application/pdf") {
+        mediaHtml += `<div class="carousel-item"><iframe src="${file.url}" style="height:250px;"></iframe></div>`;
+      }
+    });
+  } else {
     mediaHtml += `<div class="carousel-item">`;
     if (post.contentType === "image") {
       mediaHtml += `<img src="${post.content}" alt="Post Image">`;
@@ -970,40 +1078,57 @@ if (file.type.startsWith("image/")) {
   </div>`;
 
   const html = `
-    <div class="post" id="post-${index}" data-index="${index}">
-      <div class="post-header">
+    <div class="post" id="post-${index}" data-index="${index}" style="position: relative;">
+      <div class="post-header" style="position: relative;">
         <img src="${post.avatar}" alt="User" onclick="window.location.href='${profileLink}'">
-<div class="info">
-  <h4><a href="${profileLink}" style="color:#fff;text-decoration:none;">${post.name}</a></h4>
-  <span>${formatTimeAgo(post.time)}</span>
-  ${friendButton}
-</div>
+        <div class="info">
+          <h4><a href="${profileLink}" style="color:#fff;text-decoration:none;">${post.name}</a></h4>
+          <span>${formatTimeAgo(post.time)}</span>
+          ${friendButton}
+        </div>
 
+        ${post.username === currentUser.username ? `
+        <div class="post-options">
+          <div>
+            <i class="fas fa-ellipsis-v" onclick="toggleMenu(${index})"></i>
+            <div id="menu-${index}" class="post-dropdown-menu">
+              <div onclick="editPost(${index})"><i class="fas fa-edit"></i> Edit</div>
+              <div onclick="deletePost(${index})"><i class="fas fa-trash"></i> Delete</div>
+            </div>
+          </div>
+        </div>` : ""}
       </div>
+
       <div class="post-content">
-        
-
         ${post.caption ? `
-  <p class="post-caption" style="text-align: justify;" data-full="${post.caption}">
-    ${truncateWords(post.caption, 60)} <span class="toggle-caption" style="color: #4FC3F7; cursor: pointer;">Read more</span>
-  </p>
-` : ""}
-
+          <p class="post-caption" style="text-align: justify;" data-full="${post.caption}">
+            ${truncateWords(post.caption, 60)} <span class="toggle-caption" style="color: #4FC3F7; cursor: pointer;">Read more</span>
+          </p>` : ""}
         ${mediaHtml}
       </div>
-      <div class="post-actions">
-        
-        <div onclick="likePost(${index})"><i class="far fa-heart"></i> <span id="like-${index}">${post.likes}</span> Like</div>
-        <div onclick="commentPost(${index})"><i class="far fa-comment"></i> <span id="comment-${index}">${post.comments.length}</span> Comment</div>
-        <div onclick="sharePost(${index})"><i class="fas fa-share"></i> <span id="share-${index}">${post.shares}</span> Share</div>
-        <div onclick="savePost(${index})"><i class="far fa-bookmark"></i> Save</div>
-        ${post.username === currentUser.username ? `
-  <div onclick="editPost(${index})"><i class="fas fa-edit"></i> Edit</div>
-  <div onclick="deletePost(${index})"><i class="fas fa-trash"></i> Delete</div>
-` : ""}
 
+      <div class="post-actions">
+        <div onclick="likePost(${index})">
+          <i class="fa-solid fa-heart" style="color: #ff6fa8;"></i> 
+          <span id="like-${index}">${post.likes}</span> Like
+        </div>
+
+        <div onclick="commentPost(${index})">
+          <i class="fa-solid fa-message" style="color: #74c0fc;"></i> 
+          <span id="comment-${index}">${post.comments.length}</span> Comment
+        </div>
+
+        <div onclick="sharePost(${index})">
+          <i class="fa-solid fa-share-nodes" style="color: #9d9dff;"></i> 
+          <span id="share-${index}">${post.shares}</span> Share
+        </div>
+
+        <div onclick="savePost(${index})">
+          <i class="fa-solid fa-bookmark" style="color: #ffc107;"></i> Save
+        </div>
       </div>
-    </div>`;
+    </div>
+  `;
 
   if (prepend) {
     feed.insertAdjacentHTML("afterbegin", html);
@@ -1037,7 +1162,7 @@ function editPost(index) {
   if (newCaption !== null && newCaption.trim() !== "") {
     post.caption = newCaption.trim();
 
-    fetch(`https://connecther.onrender.com/api/posts/${post._id}`, {
+    fetch(`http://localhost:3000/api/posts/${post._id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ caption: post.caption })
@@ -1059,7 +1184,7 @@ function deletePost(index) {
   const post = dummyPosts[index];
 
   if (confirm("Are you sure you want to delete this post?")) {
-    fetch(`https://connecther.onrender.com/api/posts/${post._id}`, {
+    fetch(`http://localhost:3000/api/posts/${post._id}`, {
       method: 'DELETE'
     })
     .then(() => {
@@ -1077,7 +1202,7 @@ function deletePost(index) {
 function sendFriendRequest(userName, button) {
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
-  fetch('https://connecther.onrender.com/friend-request', {
+  fetch('http://localhost:3000/friend-request', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -1131,7 +1256,7 @@ function sendFriendRequest(userName, button) {
 
 function likePost(index) {
   const post = dummyPosts[index];
-  fetch(`https://connecther.onrender.com/api/posts/${post._id}/like`, {
+  fetch(`http://localhost:3000/api/posts/${post._id}/like`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username: currentUser.username })
@@ -1190,7 +1315,7 @@ function submitComment(event, index) {
     const commentText = event.target.value.trim();
     const postId = dummyPosts[index]._id;
 
-    fetch(`https://connecther.onrender.com/api/posts/${postId}/comment`, {
+    fetch(`http://localhost:3000/api/posts/${postId}/comment`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1224,7 +1349,7 @@ function submitReply(event, postIndex, commentIndex) {
       return;
     }
 
-    fetch(`https://connecther.onrender.com/api/posts/${postId}/comment/${commentIndex}/reply`, {
+    fetch(`http://localhost:3000/api/posts/${postId}/comment/${commentIndex}/reply`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1270,7 +1395,7 @@ function replyToComment(link, postIndex, commentIndex) {
       const replyText = input.value.trim();
       const postId = dummyPosts[postIndex]._id;
 
-      fetch(`https://connecther.onrender.com/api/posts/${postId}/comment/${commentIndex}/reply`, {
+      fetch(`http://localhost:3000/api/posts/${postId}/comment/${commentIndex}/reply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1337,10 +1462,14 @@ function reshareToFeed() {
 
   const postData = {
     originalPostId: originalPostId,
-    username: currentUser.username
+    username: currentUser.username,
+    caption: original.caption || "",
+    media: original.media || [],
+    contentType: original.contentType || "",
+    content: original.content || ""
   };
 
-  fetch('https://connecther.onrender.com/api/posts/reshare', {
+  fetch('http://localhost:3000/api/posts/reshare', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(postData)
@@ -1366,6 +1495,7 @@ function reshareToFeed() {
       alert("Error resharing post.");
     });
 }
+
 
 
 window.addEventListener("click", (e) => {
@@ -1487,7 +1617,7 @@ document.getElementById("communityButton").onclick = function handleCommunityRed
     return;
   }
 
-  fetch(`https://connecther.onrender.com/api/communities/user/${encodeURIComponent(username)}`)
+  fetch(`http://localhost:3000/api/communities/user/${encodeURIComponent(username)}`)
     .then(res => res.json())
     .then(data => {
       const owned = data.owned || [];
@@ -1520,7 +1650,7 @@ document.getElementById("searchInput").addEventListener("input", function () {
 
   if (query === "") return; // Don't search empty
 
-  fetch(`https://connecther.onrender.com/api/posts/search/${encodeURIComponent(query)}`)
+  fetch(`http://localhost:3000/api/posts/search/${encodeURIComponent(query)}`)
     .then(res => res.json())
     .then(results => {
       feedElement.innerHTML = ""; // Clear current feed
@@ -1538,7 +1668,7 @@ document.getElementById("searchInput").addEventListener("input", function () {
 
 
  // ✅ Add Socket.IO real-time notification handler
-const socket = io("https://connecther.onrender.com");
+const socket = io("http://localhost:3000");
 
 // ✅ Prevent duplicate listeners on reload
 if (currentUser?.username && !window.hasSocketRegistered) {
@@ -1566,7 +1696,7 @@ socket.on("incoming-group-call", ({ from, communityId, communityName }) => {
 
 
 function loadSuggestions() {
-  fetch(`https://connecther.onrender.com/api/users/suggestions/${currentUser.username}`)
+  fetch(`http://localhost:3000/api/users/suggestions/${currentUser.username}`)
     .then(res => res.json())
     .then(users => {
       const container = document.getElementById("suggestionContainer");
@@ -1714,10 +1844,154 @@ socket.on("incoming-group-call", async ({ from, communityId, communityName }) =>
   }
 });
 
+
+function toggleMenu(index) {
+    const menu = document.getElementById(`menu-${index}`);
+    document.querySelectorAll('[id^="menu-"]').forEach(m => {
+      if (m !== menu) m.style.display = 'none';
+    });
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+  }
+
+  window.addEventListener('click', function(e) {
+    if (!e.target.closest('.post-options')) {
+      document.querySelectorAll('[id^="menu-"]').forEach(menu => {
+        menu.style.display = 'none';
+      });
+    }
+  });
+
+
+// CHECK ONLY FOR ADMIN ROLE BUTTON
+function redirectAdminPanel() {
+    const user = JSON.parse(localStorage.getItem("currentUser") || "{}");
+    if (user.role === "superadmin") {
+      window.location.replace("superAdminPanel.html");
+    } else if (user.role === "admin") {
+      window.location.replace("adminPanel.html");
+    } else {
+      alert("You don't have access to this panel.");
+    }
+  }
+
+  // Hide button for non-admins
+  window.addEventListener('DOMContentLoaded', () => {
+    const user = JSON.parse(localStorage.getItem("currentUser") || "{}");
+    const adminBtn = document.getElementById("adminPanelBtn");
+    if (!user.role || (user.role !== "admin" && user.role !== "superadmin")) {
+      if (adminBtn) adminBtn.style.display = "none";
+    }
+  });
+
+ // HANDLE GREEN DOT NOTIF
+  const notifDot = document.getElementById("notifDot");
+  if (currentUser?.username) {
+    socket.emit("register", currentUser.username);
+    socket.on("new-notification", (notif) => {
+      // Show green dot
+      notifDot.style.display = "block";
+      // Mark unseen in localStorage
+      localStorage.setItem("hasNewNotif", "true");
+    });
+  }
+  // On page load, check if there are unseen notifications
+  if (localStorage.getItem("hasNewNotif") === "true") {
+    notifDot.style.display = "block";
+  }
+  function openNotificationPage() {
+    // Mark as seen
+    localStorage.setItem("hasNewNotif", "false");
+    // Optional: hide dot immediately
+    notifDot.style.display = "none";
+    // Go to notifications page
+    window.location.href = "notification.html";
+  }
+
+  //HANDLE GREEN FOT NOTIF FOR MESSAGE
+socket.emit("register", currentUser.username);
+// Reference the sound element
+const notifySound = document.getElementById("notifySound");
+// Track incoming messages
+socket.on("newMessage", (msg) => {
+  const activePage = localStorage.getItem("activePage");
+  // Only count if NOT in conversation.html
+  if (!activePage.includes("conversation.html")) {
+    let currentCount = parseInt(localStorage.getItem("unreadCount") || "0");
+    currentCount++;
+    localStorage.setItem("unreadCount", currentCount);
+    updateChatBadge();
+    // 🔊 Play notification sound
+    if (notifySound) {
+      notifySound.pause();             // Reset sound
+      notifySound.currentTime = 0;
+      notifySound.play().catch(e => {
+        console.warn("🔇 Notification sound blocked by browser:", e.message);
+      });
+    }
+      // 📳 Trigger vibration (200ms) if supported
+    if (navigator.vibrate) {
+      navigator.vibrate([200]); // 200ms vibration
+    }
+  }
+});
+
+  // Function to update the badge UI
+  function updateChatBadge() {
+    const badge = document.getElementById("chatBadge");
+    const count = parseInt(localStorage.getItem("unreadCount") || "0");
+
+    if (count > 0) {
+      badge.style.display = "inline-block";
+      badge.textContent = count > 99 ? "99+" : count;
+    } else {
+      badge.style.display = "none";
+    }
+  }
+  // Run on load to restore badge count
+  updateChatBadge();  
+
+
+  // //HANDLE GREEN FOT NOTIF FOR COMMUNITY MESSAGE
+  socket.emit("register", currentUser.username);
+
+  // 🟢 Unread community messages listener
+  socket.on("community-message", (msg) => {
+    const activePage = localStorage.getItem("activePage");
+
+    if (!activePage.includes("community.html")) {
+      let count = parseInt(localStorage.getItem("unreadCommunityCount") || "0");
+      count++;
+      localStorage.setItem("unreadCommunityCount", count);
+      updateCommunityBadge();
+    }
+  });
+
+  function updateCommunityBadge() {
+    const badge = document.getElementById("communityBadge");
+    const count = parseInt(localStorage.getItem("unreadCommunityCount") || "0");
+
+    if (count > 0) {
+      badge.style.display = "inline-block";
+      badge.textContent = count > 99 ? "99+" : count;
+    } else {
+      badge.style.display = "none";
+    }
+  }
+
+  // On page load, show stored community count
+  updateCommunityBadge();
+
+  function openCommunityPage() {
+    localStorage.setItem("activePage", "community.html");
+    window.location.href = "community.html";
+  }
+
+
+
+
   </script>
 
 <audio id="groupCallRingtone" src="connectring.mp3" loop></audio>
-
 <!-- Incoming Call Modal -->
 <div id="incomingCallModal" style="
   display: none;
@@ -1762,7 +2036,16 @@ socket.on("incoming-group-call", async ({ from, communityId, communityName }) =>
     ">Decline</button>
   </div>
 </div>
+<script src="theme.js" defer></script>
 
-
+<script>
+  localStorage.setItem("activePage", "dashboard.html");
+  function openChatPage() {
+    localStorage.setItem("activePage", "Chat.html");
+    window.location.href = "Chat.html";
+  }
+</script>
+<audio id="notifySound" src="notify.mp3" preload="auto"></audio>
+<audio id="communitySound" src="notify.mp3" preload="auto"></audio>
 </body>
 </html>

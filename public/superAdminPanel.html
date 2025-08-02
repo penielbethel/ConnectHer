@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>SuperAdmin Panel</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="theme.css">
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; background: #f0f2f5; }
     h1 { color: #333; }
@@ -186,10 +187,7 @@ async function demoteUser() {
   msgBox.innerText = data.message || "Failed to demote user.";
   fetchUsers(); // refresh user list
 }
-
 </script>
+<script src="theme.js" defer></script>
 </body>
-
-
-
 </html>

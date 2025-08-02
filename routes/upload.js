@@ -4,7 +4,7 @@ const path = require("path");
 const fs = require("fs");
 const sharp = require("sharp");
 const ffmpeg = require("fluent-ffmpeg");
-const { uploadToCloudinary } = require("../cloudinary"); // root-level import
+const { uploadToCloudinary, deleteFromCloudinary } = require("../cloudinary"); // ✅ includes delete
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -41,7 +41,7 @@ async function compressVideo(inputBuffer, outputPath) {
 }
 
 // ✅ POST /api/upload — Accept and compress image/video uploads
-router.post("/", upload.array("files", 10), async (req, res) => {
+router.post("/", upload.any(), async (req, res) => {
   if (!req.files || req.files.length === 0) {
     return res.status(400).json({ success: false, message: "No files uploaded" });
   }
@@ -82,13 +82,35 @@ router.post("/", upload.array("files", 10), async (req, res) => {
         fs.writeFileSync(outputPath, file.buffer);
       }
 
-      // ✅ Upload to Cloudinary
-      const result = await uploadToCloudinary(outputPath, "uploads");
+      // ✅ Determine upload folder
+      let uploadFolder = "uploads"; // fallback
+      const field = file.fieldname.toLowerCase();
+      const name = file.originalname.toLowerCase();
 
-      // ✅ Clean up local file
+      if (field === "avatar" || name.includes("avatar")) {
+        uploadFolder = "uploads/avatars";
+      } else if (field === "logo" || name.includes("logo")) {
+        uploadFolder = "uploads/sponsor-logos";
+      } else if (field === "media" || name.includes("media")) {
+        uploadFolder = "uploads/sponsor-posts";
+      }
+
+      // ✅ Upload to Cloudinary
+      const result = await uploadToCloudinary(outputPath, uploadFolder);
+
+      // ✅ Delete local compressed file
       fs.unlinkSync(outputPath);
 
-      // ✅ Return Cloudinary data
+      // ✅ Delete old media if public_id was sent
+      if (req.body.oldPublicId) {
+        try {
+          await deleteFromCloudinary(req.body.oldPublicId);
+        } catch (err) {
+          console.warn("⚠️ Failed to delete old Cloudinary file:", err.message);
+        }
+      }
+
+      // ✅ Push result to response array
       uploadedFiles.push({
         name: file.originalname,
         url: result.url,

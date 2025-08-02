@@ -275,16 +275,17 @@ app.post('/api/messages', async (req, res) => {
     const newMsg = await Message.create({ sender, recipient, text, audio });
 
     // ✅ After saving message, emit to room via Socket.IO
-    const roomId = [sender, recipient].sort().join("_");
-    io.to(roomId).emit("newMessage", newMsg);
-
+  const roomId = [sender, recipient].sort().join("_");
+// Send to conversation.html users
+io.to(roomId).emit("newMessage", newMsg);
+// Send to recipient directly (for dashboard.html badge)
+io.to(recipient).emit("newMessage", newMsg);
     res.json({ success: true, message: newMsg });
   } catch (err) {
     console.error("❌ Error sending message:", err);
     res.status(500).json({ success: false });
   }
 });
-
 
 // ✅ Clear chat for current user only
 app.post("/api/messages/clear", async (req, res) => {
@@ -307,10 +308,7 @@ app.post("/api/messages/clear", async (req, res) => {
 });
 
 app.use('/api/messages', require('./routes/messages'));
-
-
 io.on("connection", (socket) => {
-
   console.log("🧠 New client connected:", socket.id);
     // ✅ Join community room (for community.html chat)
   socket.on("join-community", (communityId) => {
@@ -319,13 +317,34 @@ io.on("connection", (socket) => {
   });
 
   // ✅ When a message is sent to the community
-  socket.on("send-community-message", (message) => {
-    if (!message.recipient) return;
-    io.to(message.recipient).emit("community-message", message);
-    console.log(`📤 Sent to community ${message.recipient}:`, message.text || "[media]");
-  });
+const Community = require('./models/Community'); // adjust path if needed
 
-  
+socket.on("send-community-message", async (message) => {
+  if (!message.recipient) return;
+
+  const { recipient, sender, text } = message;
+
+  // ✅ Emit to community room (for users already inside community.html)
+  io.to(recipient).emit("community-message", message);
+  console.log(`📤 Sent to community ${recipient}:`, text || "[media]");
+
+  try {
+    // ✅ Lookup community members
+    const community = await Community.findById(recipient);
+    if (!community || !community.members) return;
+
+    // ✅ Emit to each member directly for badge on dashboard.html
+    community.members.forEach(member => {
+      if (member !== sender) {
+        io.to(member).emit("community-message", message);
+      }
+    });
+  } catch (err) {
+    console.error("❌ Failed to emit to community members:", err);
+  }
+});
+
+
 socket.on("messageDeleted", ({ _id, sender, recipient }) => {
   const roomId = [sender, recipient].sort().join("_");
   io.to(roomId).emit("messageDeleted", { _id });
@@ -335,11 +354,6 @@ socket.on("messageDeleted", ({ _id, sender, recipient }) => {
     const roomId = [user1, user2].sort().join("_");
     socket.join(roomId);
     console.log(`🔗 ${user1} and ${user2} joined room: ${roomId}`);
-  });
-
-  socket.on("newMessage", (message) => {
-    const roomId = [message.sender, message.recipient].sort().join("_");
-    io.to(roomId).emit("newMessage", message);
   });
 
   socket.on("editMessage", ({ _id, sender, recipient, newText }) => {
@@ -366,35 +380,29 @@ socket.on("messageDeleted", ({ _id, sender, recipient }) => {
 socket.on("typing-community", ({ room, from }) => {
   socket.to(room).emit("typing-community", { from });
 });
-
 socket.on("stopTyping-community", ({ room, from }) => {
   socket.to(room).emit("stopTyping-community", { from });
 });
-
 socket.on("register", (username) => {
   if (username) {
     socket.join(username); // 👥 Join room named after username
     console.log(`✅ ${username} joined personal room`);
   }
 });
-
 socket.on("friend-request-status", (toUser) => {
   io.to(toUser).emit("refresh-suggestions");
 });
-
 socket.on("register", (username) => {
   socket.username = username;
   onlineUsers.add(username);
   io.emit("update-online-users", Array.from(onlineUsers));
 });
-
 socket.on("disconnect", async () => {
   console.log("👋 Client disconnected:", socket.id);
 
   if (socket.username) {
     onlineUsers.delete(socket.username);
     io.emit("update-online-users", Array.from(onlineUsers));
-
     // ✅ Update lastSeen in DB
     try {
       await User.updateOne(
@@ -407,7 +415,6 @@ socket.on("disconnect", async () => {
     }
   }
 });
-
 
 // ===============================================
 // 🔒 COMMUNITY CALL SIGNALING BLOCK (Audio ONLY)

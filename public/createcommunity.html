@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Create Community</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="theme.css">
   <style>
     * {
       margin: 0;
@@ -21,20 +22,39 @@
       margin: auto;
       min-height: 100vh;
       position: relative;
+      overflow-x: hidden;
     }
+body {
+  background-color: var(--bg);
+  color: var(--text);
+}
+   .header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 15px 10px;
+  font-size: 18px;
+  background-color: transparent; /* or add a subtle background if needed */
+  color: #fff;
+  width: 100%;
+  box-sizing: border-box;
+  max-width: 480px;
+  margin: 0 auto;
+}
 
-    .header {
-      display: flex;
-      align-items: center;
-      padding: 10px 0;
-      font-size: 18px;
-    }
+.header i {
+  font-size: 20px;
+  margin-right: 10px;
+  cursor: pointer;
+  color: #ff6fa8; /* optional: match your pink theme */
+}
 
-    .header i {
-      font-size: 20px;
-      margin-right: 10px;
-      cursor: pointer;
-    }
+.header span {
+  flex: 1;
+  font-weight: bold;
+  text-align: left;
+}
+
 
     .photo-section {
       display: flex;
@@ -102,23 +122,39 @@
       margin-bottom: 20px;
     }
 
-    .fab {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: #ff4081;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: #fff;
-      font-size: 20px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-      cursor: pointer;
-    }
+.fab {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #ff4081;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  font-size: 22px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  z-index: 999;
+  max-width: 90vw; /* ensure it never overflows on small screens */
+  box-sizing: border-box;
+}
+
+
+.fab:hover {
+  background-color: #ff6fa8;
+}
+
+.fab i {
+  pointer-events: none;
+}
+
+
+
+
   </style>
 </head>
 <body>
@@ -140,12 +176,33 @@
 </div>
 
 
-  <div class="input-label">Community name</div>
+  <div class="input-label">Community Name</div>
   <input type="text" id="community-name" maxlength="100" placeholder="Enter community name" />
   <div class="char-count" id="name-count">0/100</div>
 
-  <div class="input-label">Community purpose</div>
-  <textarea id="community-purpose" rows="4" maxlength="2048">Hi everyone! This community is for members to chat in topic-based groups and get important announcements.</textarea>
+  <div class="input-label">Community Purpose</div>
+ <textarea
+  id="community-purpose"
+  rows="4"
+  maxlength="2048"
+  style="
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    background-color: #f3d9e8;
+    color: #ff9ec9;
+    font-size: 15px;
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    resize: none;
+    overflow: hidden;
+    box-sizing: border-box;
+  "
+>
+Hi everyone! This community is for members to chat in topic-based groups and get important announcements.
+</textarea>
+
   <div class="char-count" id="purpose-count">105/2048</div>
 
   <div class="fab" onclick="createCommunity()">
@@ -187,7 +244,7 @@ avatarInput.addEventListener('change', async function () {
   formData.append("files", file);
 
   try {
-    const res = await fetch("https://connecther.onrender.com/api/upload", {
+    const res = await fetch("http://localhost:3000/api/upload", {
       method: "POST",
       body: formData
     });
@@ -206,7 +263,6 @@ avatarInput.addEventListener('change', async function () {
     alert("Error uploading avatar. Try again.");
   }
 });
-
 
   // Restore previously selected avatar
   window.addEventListener('DOMContentLoaded', () => {
@@ -228,7 +284,7 @@ avatarInput.addEventListener('change', async function () {
     if (!name) return alert("Please enter a community name.");
     if (!username) return alert("You must be logged in to create a community.");
 
-    fetch("https://connecther.onrender.com/api/communities/create", {
+    fetch("http://localhost:3000/api/communities/create", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -258,8 +314,7 @@ avatarInput.addEventListener('change', async function () {
         alert("Failed to create community. Please try again.");
       });
   }
-
   </script>
-
+<script src="theme.js" defer></script>
 </body>
 </html>

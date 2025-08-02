@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Notifications</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="theme.css">
   <style>
     body {
       background: #121212;
@@ -14,6 +15,10 @@
       margin: auto;
     }
 
+    body {
+  background-color: var(--bg);
+  color: var(--text);
+}
     h2 {
       text-align: center;
       color: #ff4081;
@@ -161,7 +166,7 @@ if (!currentUser) {
 const requestList = document.getElementById("requestList");
 
 // ✅ Load normal friend requests
-fetch(`https://connecther.onrender.com/friend-requests/${currentUser.username}`)
+fetch(`http://localhost:3000/friend-requests/${currentUser.username}`)
   .then(res => res.json())
   .then(requests => {
     if (!Array.isArray(requests) || requests.length === 0) {
@@ -170,7 +175,7 @@ fetch(`https://connecther.onrender.com/friend-requests/${currentUser.username}`)
       requests.forEach(username => {
         
         
-      fetch(`https://connecther.onrender.com/api/users/${username}`)
+      fetch(`http://localhost:3000/api/users/${username}`)
   .then(res => res.json())
   .then(data => {
     console.log("User response:", data); // ✅ Add this
@@ -200,7 +205,7 @@ fetch(`https://connecther.onrender.com/friend-requests/${currentUser.username}`)
     }
 
     // ✅ Then load pending community invites
-    fetch(`https://connecther.onrender.com/api/community-invites/${currentUser.username}`)
+    fetch(`http://localhost:3000/api/community-invites/${currentUser.username}`)
       .then(res => res.json())
       .then(data => {
         if (data.success && data.invites.length) {
@@ -233,7 +238,7 @@ fetch(`https://connecther.onrender.com/friend-requests/${currentUser.username}`)
 
 // ✅ Handle friend accept/decline
 function acceptRequest(username) {
-  fetch('https://connecther.onrender.com/friend-accept', {
+  fetch('http://localhost:3000/friend-accept', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -253,7 +258,7 @@ function acceptRequest(username) {
 }
 
 function declineRequest(username) {
-  fetch('https://connecther.onrender.com/friend-decline', {
+  fetch('http://localhost:3000/friend-decline', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ from: username, to: currentUser.username })
@@ -271,7 +276,7 @@ function declineRequest(username) {
 
 // ✅ Handle community invite accept/decline
 function acceptCommunityInvite(inviteId) {
-  fetch(`https://connecther.onrender.com/api/community-invites/${inviteId}/accept`, {
+  fetch(`http://localhost:3000/api/community-invites/${inviteId}/accept`, {
     method: "POST"
   })
   .then(res => res.json())
@@ -290,7 +295,7 @@ function acceptCommunityInvite(inviteId) {
 }
 
 function declineCommunityInvite(inviteId) {
-  fetch(`https://connecther.onrender.com/api/community-invites/${inviteId}/decline`, {
+  fetch(`http://localhost:3000/api/community-invites/${inviteId}/decline`, {
     method: "POST"
   })
   .then(res => res.json())
@@ -328,7 +333,7 @@ callList.appendChild(bulkControls);
 const allLogCheckboxes = [];
 
 // ✅ Fetch Personal Call Logs
-fetch(`https://connecther.onrender.com/api/calls/${currentUser.username}`)
+fetch(`http://localhost:3000/api/calls/${currentUser.username}`)
   .then(res => res.json())
   .then(logs => {
     if (logs.length) {
@@ -338,7 +343,7 @@ fetch(`https://connecther.onrender.com/api/calls/${currentUser.username}`)
     logs.forEach(log => {
       const otherUser = log.caller === currentUser.username ? log.receiver : log.caller;
 
-      fetch(`https://connecther.onrender.com/api/users/user/${otherUser}`)
+      fetch(`http://localhost:3000/api/users/user/${otherUser}`)
         .then(res => res.json())
         .then(userData => {
           const item = document.createElement("div");
@@ -378,7 +383,7 @@ fetch(`https://connecther.onrender.com/api/calls/${currentUser.username}`)
   });
 
 // ✅ Fetch Group Call Notifications
-fetch(`https://connecther.onrender.com/api/notifications/group-call/${currentUser.username}`)
+fetch(`http://localhost:3000/api/notifications/group-call/${currentUser.username}`)
   .then(res => res.json())
   .then(notifications => {
     if (notifications.length) {
@@ -418,7 +423,7 @@ fetch(`https://connecther.onrender.com/api/notifications/group-call/${currentUse
 
 // ✅ Single delete handler for personal calls
 function deleteCall(id) {
-  fetch(`https://connecther.onrender.com/api/calls/${id}`, {
+  fetch(`http://localhost:3000/api/calls/${id}`, {
     method: "DELETE"
   })
   .then(res => res.json())
@@ -438,7 +443,7 @@ function deleteCall(id) {
 
 // ✅ Shared delete function (already used by group call)
 function deleteNotification(id) {
-  fetch(`https://connecther.onrender.com/api/notifications/${id}`, {
+  fetch(`http://localhost:3000/api/notifications/${id}`, {
     method: "DELETE"
   })
   .then(res => res.json())
@@ -498,7 +503,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (notificationIds.length) {
         deletions.push(
-          fetch("https://connecther.onrender.com/api/notifications/bulk-delete", {
+          fetch("http://localhost:3000/api/notifications/bulk-delete", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ ids: notificationIds })
@@ -508,7 +513,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (personalCallIds.length) {
         deletions.push(
-          fetch("https://connecther.onrender.com/api/calls/bulk-delete", {
+          fetch("http://localhost:3000/api/calls/bulk-delete", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ ids: personalCallIds })
@@ -591,7 +596,7 @@ document.addEventListener("DOMContentLoaded", () => {
 const likesTab = document.getElementById("likes");
 likesTab.innerHTML = "<p class='status'>Loading...</p>";
 
-fetch(`https://connecther.onrender.com/api/notifications/likes-comments/${currentUser.username}`)
+fetch(`http://localhost:3000/api/notifications/likes-comments/${currentUser.username}`)
   .then(res => res.json())
   .then(notifications => {
     if (!notifications.length) {
@@ -607,7 +612,7 @@ item.className = "request clickable";
 
 item.onclick = () => {
   // ✅ 1. Delete notification
-  fetch(`https://connecther.onrender.com/api/notifications/${notif._id}`, {
+  fetch(`http://localhost:3000/api/notifications/${notif._id}`, {
     method: "DELETE"
   });
 
@@ -639,15 +644,20 @@ likesTab.appendChild(item);
 
   
 // ✅ Add Socket.IO real-time notification handler
-  const socket = io("https://connecther.onrender.com");
-  if (currentUser?.username) {
-    socket.emit("register", currentUser.username);
-    socket.on("new-notification", (notif) => {
-      if (notif.type === "like" || notif.type === "comment") {
-        alert(notif.content); // ✅ Replace with toast later
-      }
-    });
-  }
+const socket = io("http://localhost:3000");
+
+if (currentUser?.username) {
+  // ✅ CLEAR new notification indicator when user enters this page
+  localStorage.setItem("hasNewNotif", "false");
+
+  socket.emit("register", currentUser.username);
+  socket.on("new-notification", (notif) => {
+    if (notif.type === "like" || notif.type === "comment") {
+      alert(notif.content); // ✅ Replace with toast later
+    }
+  });
+}
+
   
 </script>
 
@@ -691,7 +701,7 @@ likesTab.appendChild(item);
           // ✅ Save to backend
           const currentUser = JSON.parse(localStorage.getItem('currentUser'));
           if (currentUser && currentUser.username) {
-            await fetch("https://connecther.onrender.com/api/save-fcm-token", {
+            await fetch("http://localhost:3000/api/save-fcm-token", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ username: currentUser.username, token })
@@ -736,7 +746,6 @@ likesTab.appendChild(item);
 
 <!-- 🔔 Notification Sound -->
 <audio id="notiTone" src="/notify.mp3" preload="auto"></audio>
-
-
+<script src="theme.js" defer></script>
 </body>
 </html>

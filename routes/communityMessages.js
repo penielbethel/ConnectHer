@@ -125,7 +125,24 @@ router.post('/:id/messages', upload.any(), async (req, res) => {
     });
 
     await newMsg.save();
-    io.to(communityId).emit("community-message", newMsg);
+    // Emit to all users in the room (for those inside community.html)
+io.to(communityId).emit("community-message", newMsg);
+
+// ALSO emit to each member personally (for badge count in dashboard.html)
+try {
+  const community = await Community.findById(communityId);
+
+  if (community && community.members?.length) {
+    community.members.forEach(member => {
+      if (member !== newMsg.sender.username) {
+        io.to(member).emit("community-message", newMsg); // dashboard users will receive it
+      }
+    });
+  }
+} catch (err) {
+  console.error("❌ Failed to emit to community members:", err);
+}
+
 
     res.status(201).json({ success: true, message: newMsg });
 

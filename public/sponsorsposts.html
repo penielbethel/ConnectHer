@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sponsor Posts</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="theme.css">
   <style>
     * {
       margin: 0;
@@ -20,7 +21,10 @@
       max-width: 480px;
       margin: auto;
     }
-
+body {
+  background-color: var(--bg);
+  color: var(--text);
+}
     .sponsor-header {
       text-align: center;
       margin-bottom: 20px;
@@ -325,7 +329,7 @@ container.querySelectorAll(".caption").forEach(p => {
 
 
       } else {
-        container.innerHTML = "<p>No posts yet for this sponsor.</p>";
+        container.innerHTML = "<p style='color: pink;'>No posts yet for this sponsor.</p>";
       }
 
     } catch (err) {
@@ -379,6 +383,6 @@ async function trackClick(sponsorId, postId) {
 <div id="avatarPreviewOverlay" onclick="closeAvatarPreview()" style="display:none;">
   <img id="avatarPreviewImage" src="" alt="Sponsor Avatar" />
 </div>
-
+<script src="theme.js" defer></script>
 </body>
 </html>

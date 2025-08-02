@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Create Community</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="theme.css">
   <style>
     * {
       margin: 0;
@@ -22,7 +23,10 @@
       min-height: 100vh;
       position: relative;
     }
-
+body {
+  background-color: var(--bg);
+  color: var(--text);
+}
     .header {
       padding: 20px 10px;
       background: #ff4081;
@@ -161,6 +165,8 @@
 
 
   <script>
+  localStorage.setItem("activePage", "communitylist.html");
+
 document.addEventListener('DOMContentLoaded', () => {
   const username = localStorage.getItem("username");
   
@@ -174,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function loadCommunities(username) {
-  fetch(`https://connecther.onrender.com/api/communities/user/${encodeURIComponent(username)}`)
+  fetch(`http://localhost:3000/api/communities/user/${encodeURIComponent(username)}`)
     .then(res => {
       if (!res.ok) throw new Error(`Server error: ${res.status}`);
       return res.json();
@@ -231,9 +237,9 @@ function openChatPage(communityId) {
   window.location.href = "community.html";
 }
 
-
 </script>
 
+<script src="theme.js" defer></script>
 
 </body>
 </html>

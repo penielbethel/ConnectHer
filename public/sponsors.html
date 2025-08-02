@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Registered Sponsors</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="theme.css">
   <style>
   * {
     margin: 0;
@@ -20,7 +21,10 @@
     max-width: 480px;
     margin: auto;
   }
-
+body {
+  background-color: var(--bg);
+  color: var(--text);
+}
   h1 {
     font-size: 20px;
     margin-bottom: 15px;
@@ -96,11 +100,10 @@
 </head>
 <body>
 
-  <h1>Registered Sponsors</h1>
-
+  <h1 style="color: #fe73bb;">Registered Sponsors</h1>
 
   <div style="margin: 10px 0; display: flex; align-items: center; gap: 8px;">
-  <i class="fa fa-search" style="color: white;"></i>
+  <i class="fa fa-search" style="color: rgb(222, 63, 239);"></i>
   <input 
     type="text" 
     id="sponsorSearch" 
@@ -145,7 +148,7 @@ function renderSponsors(sponsors) {
   container.innerHTML = "";
 
   if (!sponsors.length) {
-    container.innerHTML = "<p>No sponsors match your search.</p>";
+    container.innerHTML = "<p style='color: #ff69b4;'>No sponsors match your search.</p>";
     return;
   }
 
@@ -190,8 +193,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 fetchSponsors();
 </script>
-
-
-
+<script src="theme.js" defer></script>
 </body>
 </html>

@@ -79,7 +79,7 @@ router.post('/', upload.array('media', 10), async (req, res) => {
     const timestamp = Date.now();
     const safeName = `${base}-${timestamp}`;
     let outputExt, outputName, outputPath, mime = file.mimetype;
-
+    
     try {
       if (['.jpg', '.jpeg', '.png', '.webp'].includes(ext)) {
         // Compress image: resize to 1080 and convert to WebP
@@ -134,22 +134,27 @@ router.post('/', upload.array('media', 10), async (req, res) => {
       }
     }
   }
-  
   try {
-    const message = new Message({
-      sender,
-      recipient,
-      text,
-      audio,
-      media: mediaArray,
-      reply,
-      replyFrom,
-      replyToId,
-      timestamp: new Date(),
-    });
-  
-    const saved = await message.save();
-    res.json({ success: true, message: saved });
+const message = new Message({
+  sender,
+  recipient,
+  text,
+  audio,
+  media: mediaArray,
+  reply,
+  replyFrom,
+  replyToId,
+  timestamp: new Date(),
+});
+
+const saved = await message.save();
+// ✅ Emit to both the conversation room AND recipient directly
+const io = req.app.get("io");
+const roomId = [sender, recipient].sort().join("_");
+io.to(roomId).emit("newMessage", saved);        // for conversation.html
+io.to(recipient).emit("newMessage", saved);     // for dashboard.html
+
+res.json({ success: true, message: saved });
   } catch (err) {
     console.error("❌ Message save failed:", err);
     res.status(500).json({ success: false, message: "Server error" });

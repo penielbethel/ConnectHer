@@ -16,19 +16,23 @@ cloudinary.config({
  * @param {string} folder - Cloudinary folder path
  * @returns {Promise<{ url: string, public_id: string }>}
  */
-const uploadToCloudinary = async (filePath, folder = 'uploads') => {
-  try {
-    const result = await cloudinary.uploader.upload(filePath, {
-      resource_type: 'auto', // handles all types: images, videos, audio, docs
-      folder
-    });
-    return {
-      url: result.secure_url,
-      public_id: result.public_id
-    };
-  } catch (error) {
-    throw new Error('Cloudinary Upload Failed: ' + error.message);
-  }
+const uploadToCloudinary = (filePath, folder = 'uploads') => {
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.upload(
+      filePath,
+      { resource_type: 'auto', folder },
+      (err, result) => {
+        if (err || !result) {
+          console.error("📛 Cloudinary upload error:", err || "No result");
+          return reject(new Error("Cloudinary Upload Failed: " + (err?.message || "Unknown error")));
+        }
+        resolve({
+          url: result.secure_url,
+          public_id: result.public_id
+        });
+      }
+    );
+  });
 };
 
 /**
@@ -39,7 +43,7 @@ const uploadToCloudinary = async (filePath, folder = 'uploads') => {
 const deleteFromCloudinary = async (publicId) => {
   try {
     await cloudinary.uploader.destroy(publicId, {
-      resource_type: 'raw' // safest fallback to ensure deletion of all file types
+      resource_type: 'raw'
     });
   } catch (error) {
     throw new Error('Cloudinary Deletion Failed: ' + error.message);

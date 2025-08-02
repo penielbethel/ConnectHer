@@ -4,6 +4,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ConnectHer Conversation</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="theme.css">
   <style>
     * {
       margin: 0;
@@ -21,6 +22,11 @@
       flex-direction: column;
       height: 100vh;
     }
+
+      body {
+  background-color: var(--bg);
+  color: var(--text);
+}
 
     .conversation-header {
       padding: 10px;
@@ -687,7 +693,25 @@
 <div id="replyPreview" style="display:none; padding: 6px 10px; background: #333; color: white; font-size: 14px; border-left: 3px solid deepskyblue; border-radius: 6px; margin-bottom: 6px;"></div>
 
   <div class="input-bar">
-    <input type="text" id="messageInput" placeholder="Type a message...">
+    <textarea 
+  id="messageInput" 
+  placeholder="Type a message..." 
+  rows="1"
+  style="
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+    border: none;
+    border-radius: 10px;
+    resize: none;
+    overflow: hidden;
+    background: #1a1a1a;
+    color: #fff;
+    line-height: 1.4;
+  "
+  oninput="autoExpand(this)"
+></textarea>
     <button onclick="toggleEmojiPanel()"><i class="fa fa-smile"></i></button>
     <button onclick="startMicRecording()"><i class="fa fa-microphone"></i></button>
     <button onclick="stopMicRecording()" id="stopBtn" style="display:none;"><i class="fa fa-stop-circle"></i></button>
@@ -765,9 +789,11 @@
 <!-- Ringtone for incoming call -->
 <audio id="ringtone" src="connectring.mp3" loop preload="auto"></audio>
 
-  <script src="https://connecther.onrender.com/socket.io/socket.io.js"></script>
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
 
 <script>
+localStorage.setItem("activePage", "conversation.html");
+
 const emojiPanel = document.getElementById("emojiPanel");
 const messageInput = document.getElementById("messageInput");
 const messageContainer = document.getElementById("messageContainer");
@@ -797,7 +823,7 @@ const username = urlParams.get("user"); // friend's username
 const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
 // 📡 Connect Socket.IO with current username in query
-const API = "https://connecther.onrender.com";
+const API = "http://localhost:3000";
 const socket = io(API, {
   query: { username: currentUser.username }
 });socket.emit("register", currentUser.username);
@@ -1002,8 +1028,7 @@ function sendMessage() {
 
         // Show in chat
         const content = data.message.text || `<audio controls src="${data.message.audio}"></audio>`;
-        addMessage(content, data.message.sender, true, data.message.timestamp, data.message._id, data.message.reply, data.message.replyFrom, data.message.replyToId);
-
+        
         // Send to other user
         socket.emit("newMessage", data.message);
       }
@@ -1052,6 +1077,9 @@ function loadMessages() {
     })
     .catch(err => console.error("Failed to load messages", err));
 }
+
+localStorage.setItem("unreadCount", "0");
+
 
 // FILE CARD NEWMEK
 document.getElementById("mediaInput").addEventListener("change", function () {
@@ -1175,6 +1203,14 @@ socket.on("newMessage", msg => {
   const isMine = msg.sender === currentUser.username;
   let content = "";
 
+    // 🌐 Unread message badge logic
+  const currentPage = localStorage.getItem("activePage");
+  if (!isMine && !currentPage.includes("conversation.html")) {
+    let unread = parseInt(localStorage.getItem("unreadCount") || "0");
+    unread += 1;
+    localStorage.setItem("unreadCount", unread);
+  }
+
   // 📝 Text
   if (msg.text) {
     content = msg.text;
@@ -1187,7 +1223,6 @@ socket.on("newMessage", msg => {
   } else if (msg.media && msg.media.length > 0) {
     content = buildMediaContent(msg.media);
   }
-
   if (content) {
     addMessage(content, msg.sender, isMine, msg.timestamp, msg._id, msg.reply, msg.replyFrom, msg.replyToId);
   }
@@ -1244,18 +1279,15 @@ function sendVoiceNote() {
       .then(res => res.json())
       .then(data => {
         if (data.success && data.message) {
-          // Show in sender's chat immediately
-          addMessage(`<audio controls src="${audioURL}"></audio>`, currentUser.username, true);
-
           // 🔊 Emit to receiver in real-time
           socket.emit("newMessage", data.message);
-
           // Clean up UI
           audioPreview.style.display = "none";
           audioBlob = null;
           audioURL = null;
           audioChunks = [];
         }
+
       })
       .catch(err => console.error("❌ Failed to send voice note", err));
   };
@@ -2707,11 +2739,13 @@ document.getElementById("searchInput").addEventListener("input", function () {
     resultsContainer.innerHTML = "<p style='color:#bbb;'>No matching messages found.</p>";
   }
 });
+
+function autoExpand(textarea) {
+    textarea.style.height = 'auto';
+    textarea.style.height = (textarea.scrollHeight) + 'px';
+  }
+
 </script>
-
-
-
-
-
+<script src="theme.js" defer></script>
 </body>
 </html>

@@ -4,6 +4,11 @@ const router = express.Router();
 
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
+const sharp = require("sharp");
+const ffmpeg = require("fluent-ffmpeg");
+const { uploadToCloudinary, deleteFromCloudinary } = require("../cloudinary");
+
 const Sponsor = require("../models/Sponsor");
 const verifyTokenAndRole = require("../middleware/verifyTokenAndRole");
 
@@ -12,11 +17,9 @@ const Notification = require("../models/Notification");
 const User = require("../models/User"); // if sending to specific users
 
 // File storage
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "uploads/"),
-  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname)),
-});
-const upload = multer({ storage });
+const multerStorage = multer.memoryStorage();
+const upload = multer({ storage: multerStorage });
+
 
 /**
  * ✅ POST /api/sponsors/register
@@ -29,24 +32,50 @@ router.post(
   async (req, res) => {
     try {
       const { companyName, objectives } = req.body;
-      const logo = req.file ? `https://connecther.onrender.com/uploads/${req.file.filename}` : null;
+
+      let logo = null;
+      let logoPublicId = null;
+
+      if (req.file) {
+        const path = require("path");
+        const fs = require("fs");
+        const outputPath = path.join("uploads", `compressed-${Date.now()}-${req.file.originalname}`);
+
+        // Compress the logo image
+        await sharp(req.file.buffer)
+          .resize({ width: 600 })
+          .jpeg({ quality: 60 })
+          .toFile(outputPath);
+
+        // Upload to Cloudinary
+        const { url, public_id } = await uploadToCloudinary(outputPath, "uploads/sponsor-logos");
+
+        // Clean up local file
+        fs.unlinkSync(outputPath);
+
+        logo = url;
+        logoPublicId = public_id;
+      }
 
       const newSponsor = new Sponsor({
         companyName,
         objectives,
         logo,
+        logoPublicId,
         posts: [],
         postCount: 0
       });
 
       await newSponsor.save();
       res.status(201).json({ message: "Sponsor registered successfully", sponsor: newSponsor });
+
     } catch (err) {
       console.error("Register Sponsor Error:", err);
       res.status(500).json({ message: "Internal server error" });
     }
   }
 );
+
 
 /**
  * ✅ GET /api/sponsors
@@ -74,7 +103,48 @@ router.put(
   async (req, res) => {
     try {
       const { caption, jobLink } = req.body;
-      const media = req.file ? `https://connecther.onrender.com/uploads/${req.file.filename}` : null;
+
+      let media = null;
+      let mediaPublicId = null;
+
+      // ✅ Compress + Upload to Cloudinary
+      if (req.file) {
+        const ext = path.extname(req.file.originalname).toLowerCase();
+        const isImage = req.file.mimetype.startsWith("image/");
+        const isVideo = req.file.mimetype.startsWith("video/");
+        const outputName = `compressed-${Date.now()}-${req.file.originalname}`;
+        const outputPath = path.join("uploads", outputName);
+
+        if (isImage) {
+          await sharp(req.file.buffer)
+            .resize({ width: 600 })
+            .jpeg({ quality: 60 })
+            .toFile(outputPath);
+        } else if (isVideo) {
+          const tempInputPath = path.join("uploads", `temp-${Date.now()}.mp4`);
+          fs.writeFileSync(tempInputPath, req.file.buffer);
+          await new Promise((resolve, reject) => {
+            ffmpeg(tempInputPath)
+              .outputOptions("-crf 28")
+              .save(outputPath)
+              .on("end", () => {
+                fs.unlinkSync(tempInputPath);
+                resolve();
+              })
+              .on("error", (err) => {
+                fs.unlinkSync(tempInputPath);
+                reject(err);
+              });
+          });
+        } else {
+          fs.writeFileSync(outputPath, req.file.buffer); // fallback
+        }
+
+        const result = await uploadToCloudinary(outputPath, "uploads/sponsor-posts");
+        media = result.url;
+        mediaPublicId = result.public_id;
+        fs.unlinkSync(outputPath);
+      }
 
       const sponsor = await Sponsor.findById(req.params.id);
       if (!sponsor) return res.status(404).json({ message: "Sponsor not found" });
@@ -83,6 +153,7 @@ router.put(
         caption,
         jobLink,
         media,
+        mediaPublicId,
         views: 0,
         createdAt: new Date()
       };
@@ -104,12 +175,14 @@ router.put(
       });
 
       res.status(200).json({ message: "Post added and notification sent", sponsor });
+
     } catch (err) {
       console.error("Post for Sponsor Error:", err);
       res.status(500).json({ message: "Failed to add post" });
     }
   }
 );
+
 
 
 // GET /api/sponsors/:id/posts
@@ -137,7 +210,7 @@ router.put("/:sponsorId/posts/:postId", verifyTokenAndRole(["admin", "superadmin
 
     if (req.body.caption) post.caption = req.body.caption;
     if (req.body.jobLink) post.jobLink = req.body.jobLink;
-    if (req.file) post.media = `https://connecther.onrender.com/uploads/${req.file.filename}`;
+    if (req.file) post.media = `http://localhost:3000/uploads/${req.file.filename}`;
 
     await sponsor.save();
     res.json({ message: "Post updated", post });
@@ -148,6 +221,29 @@ router.put("/:sponsorId/posts/:postId", verifyTokenAndRole(["admin", "superadmin
 });
 
 
+//COMPRESSION NEWMEK
+const compressImage = async (buffer, outputPath) =>
+  sharp(buffer).resize({ width: 600 }).jpeg({ quality: 60 }).toFile(outputPath);
+
+const compressVideo = async (buffer, outputPath) => {
+  const tempInputPath = path.join("uploads", `input-${Date.now()}.mp4`);
+  fs.writeFileSync(tempInputPath, buffer);
+
+  return new Promise((resolve, reject) => {
+    ffmpeg(tempInputPath)
+      .outputOptions("-crf 28")
+      .save(outputPath)
+      .on("end", () => {
+        fs.unlinkSync(tempInputPath);
+        resolve();
+      })
+      .on("error", (err) => {
+        fs.unlinkSync(tempInputPath);
+        reject(err);
+      });
+  });
+};
+
 // DELETE /api/sponsors/:sponsorId/posts/:postId
 router.delete("/:sponsorId/posts/:postId", verifyTokenAndRole(["admin", "superadmin"]), async (req, res) => {
   try {
@@ -156,14 +252,22 @@ router.delete("/:sponsorId/posts/:postId", verifyTokenAndRole(["admin", "superad
     const sponsor = await Sponsor.findById(sponsorId);
     if (!sponsor) return res.status(404).json({ message: "Sponsor not found" });
 
-    // Use findIndex to locate the post by _id
-    const postIndex = sponsor.posts.findIndex(p => p._id.toString() === postId);
-    if (postIndex === -1) {
-      return res.status(404).json({ message: "Post not found" });
+    // Find the post
+    const post = sponsor.posts.id(postId);
+    if (!post) return res.status(404).json({ message: "Post not found" });
+
+    // ✅ Delete media from Cloudinary if it exists
+    if (post.mediaPublicId) {
+      try {
+        await deleteFromCloudinary(post.mediaPublicId);
+      } catch (err) {
+        console.warn("⚠️ Failed to delete media from Cloudinary:", err.message);
+        // We still proceed to delete the post from DB
+      }
     }
 
-    // Remove the post
-    sponsor.posts.splice(postIndex, 1);
+    // ✅ Remove the post from the sponsor's posts array
+    post.remove(); // Mongoose subdocument method
     sponsor.postCount = sponsor.posts.length;
 
     await sponsor.save();
@@ -174,6 +278,7 @@ router.delete("/:sponsorId/posts/:postId", verifyTokenAndRole(["admin", "superad
     res.status(500).json({ message: "Failed to delete post", error: err.message });
   }
 });
+
 
 
 // GET /api/sponsors/:sponsorId/posts/:postId/view
@@ -208,10 +313,34 @@ router.get("/redirect/:sponsorId/:postId", async (req, res) => {
 // DELETE /api/sponsors/:id - Delete a sponsor
 router.delete("/:id", verifyTokenAndRole(["admin", "superadmin"]), async (req, res) => {
   try {
-    const sponsor = await Sponsor.findByIdAndDelete(req.params.id);
-    if (!sponsor) return res.status(404).json({ message: "Sponsor not found" });
+const sponsor = await Sponsor.findById(req.params.id);
+if (!sponsor) return res.status(404).json({ message: "Sponsor not found" });
 
-    res.json({ message: "Sponsor deleted successfully" });
+// ✅ Delete sponsor logo from Cloudinary
+if (sponsor.logoPublicId) {
+  try {
+    await deleteFromCloudinary(sponsor.logoPublicId);
+  } catch (err) {
+    console.warn("⚠️ Failed to delete sponsor logo from Cloudinary:", err.message);
+  }
+}
+
+// ✅ Delete each sponsor post media from Cloudinary
+for (const post of sponsor.posts) {
+  if (post.mediaPublicId) {
+    try {
+      await deleteFromCloudinary(post.mediaPublicId);
+    } catch (err) {
+      console.warn(`⚠️ Failed to delete media (${post.mediaPublicId}) from Cloudinary:`, err.message);
+    }
+  }
+}
+
+// ✅ Delete sponsor from DB
+await Sponsor.findByIdAndDelete(req.params.id);
+res.json({ message: "Sponsor deleted successfully" });
+
+
   } catch (err) {
     console.error("Delete Sponsor Error:", err);
     res.status(500).json({ message: "Failed to delete sponsor" });

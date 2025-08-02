@@ -1,4 +1,3 @@
-// models/SponsorPost.js
 const mongoose = require("mongoose");
 
 const sponsorPostSchema = new mongoose.Schema({
@@ -8,6 +7,7 @@ const sponsorPostSchema = new mongoose.Schema({
     required: true
   },
   mediaUrl: String,
+  mediaPublicId: String, // ✅ Track for Cloudinary deletion
   caption: String,
   jobLink: String,
   views: {

@@ -55,14 +55,14 @@ router.post("/register", upload.single("avatar"), async (req, res) => {
       .toFile(outputPath);
 
     // ✅ Upload compressed avatar to Cloudinary
-    const result = await uploadToCloudinary(outputPath, "uploads");
+   const result = await uploadToCloudinary(outputPath, "uploads/avatars");
 
     // ✅ Remove local copy
     fs.unlink(outputPath, (err) => {
       if (err) console.warn("⚠️ Could not delete local avatar:", err);
     });
 
-    const avatarUrl = result.url; // Could modify to match `/uploads/...` structure if needed
+    const avatarUrl = result.url; // Cloudinary path: uploads/avatars/
 
     const existingUser = await User.findOne({ $or: [{ username }, { email }] });
     if (existingUser) {
@@ -288,7 +288,7 @@ if (req.file) {
     }
   }
 
-  const result = await uploadToCloudinary(outputPath, "uploads");
+  const result = await uploadToCloudinary(outputPath, "uploads/avatars");
   fs.unlink(outputPath, () => {}); // delete local after upload
 
   user.avatar = result.url;
@@ -336,7 +336,6 @@ res.status(200).json({
     res.status(500).json({ message: "Error updating profile." });
   }
 });
-
 
 
 

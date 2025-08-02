@@ -2,8 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>ConnectHer - Access</title>
+  <title>ConnectHer Network</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="theme.css">
   <style>
     * {
       margin: 0;
@@ -18,7 +20,10 @@
       background: #0e0e0e;
       color: #fff;
     }
-
+body {
+  background-color: var(--bg);
+  color: var(--text);
+}
     #preloader {
       position: fixed;
       width: 100%;
@@ -66,6 +71,26 @@
       font-size: 14px;
       color: #aaa;
     }
+.signup-step {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+.signup-step.visible {
+  opacity: 1;
+  max-height: 100px;
+  margin-top: 12px;
+}
+
+#signup-form input,
+#signup-form select,
+#signup-form .date-input-wrapper,
+#signup-form .custom-file-upload {
+  width: 100%; /* Match width of First Name input */
+}
+
 
     .container {
       display: none;
@@ -197,6 +222,73 @@
   font-size: 16px;
   box-shadow: 0 0 8px #ff66cc40;
 }
+
+ .custom-file-upload {
+    display: inline-block;
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: #d385bd;
+    color: white;
+    border-radius: 5px;
+    font-family: sans-serif;
+    font-size: 14px;
+  }
+
+  input[type="file"] {
+    display: none;
+  }
+
+  .date-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .date-label {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    color: #555;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  .date-input-container {
+    position: relative;
+    flex-grow: 1;
+  }
+
+  .date-input-container input[type="date"] {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    appearance: none;
+    background-color: #f189b3;
+  }
+
+  /* Hide placeholder-like text in iOS/Safari */
+  .date-input-container input[type="date"]:not(:valid)::-webkit-datetime-edit {
+    color: transparent;
+  }
+
+  .date-input-container input[type="date"]:not(:valid)::before {
+    content: attr(data-placeholder);
+    color: #aaa;
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  .hidden {
+  display: none;
+}
+
+
   </style>
 </head>
 <body>
@@ -207,32 +299,57 @@
   <div class="dot-container">
     <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
   </div>
-  <div class="meta-text">ConnectHer 2025</div>
+  <div class="meta-text">ConnectHer Network</div>
 </div>
 
 <!-- Sign-Up Container -->
 <div id="signup-container" class="container">
   <img src="/logo.png" alt="ConnectHer Logo">
   <h1>Sign Up for ConnectHer</h1>
-  <form id="signup-form" enctype="multipart/form-data">
-  <input type="text" name="firstName" placeholder="First name" required>
-  <input type="text" name="surname" placeholder="Surname" required>
-  <input type="text" name="username" placeholder="Choose a username" required>
-  <input type="email" name="email" placeholder="Email address" required>
-  <div style="position: relative;">
+<form id="signup-form" enctype="multipart/form-data">
+  <input type="text" name="firstName" id="firstName" placeholder="First name" required>
+
+  <div class="signup-step hidden"><input type="text" name="surname" placeholder="Surname" required></div>
+  <div class="signup-step hidden"><input type="text" name="username" placeholder="Choose a username" required></div>
+  <div class="signup-step hidden"><input type="email" name="email" placeholder="Email address" required></div>
+  <div class="signup-step hidden">
     <input type="password" name="password" id="signupPassword" placeholder="Password" required>
   </div>
-  <select name="gender" id="gender" required>
-  <option value="Female" selected>Female</option>
-  <option value="Company">Company</option>
-</select>
-  <input type="date" name="birthday" placeholder="Birthday" required>
-  <input type="text" name="location" id="location" placeholder="Location" required>
-  <input type="file" name="avatar" accept="image/*" required>
-  <input type="text" name="adminToken" placeholder="Admin Token (if provided)" />
-  <button type="submit">Sign Up</button>
+  <div class="signup-step hidden">
+    <select name="gender" id="gender" required>
+      <option value="Female" selected>Female</option>
+      <option value="Company">Company</option>
+    </select>
+  </div>
+  <div class="signup-step hidden">
+    <div class="date-input-wrapper">
+      <label class="date-label" for="birthday">
+        <i class="fa fa-calendar-alt"></i>
+        Enter your Date of Birth
+      </label>
+      <div class="date-input-container">
+        <input
+          type="date"
+          id="birthday"
+          name="birthday"
+          required
+          onfocus="(this.type='date')"
+          onblur="if(!this.value)this.type='text'"
+        />
+      </div>
+    </div>
+  </div>
+  <div class="signup-step hidden"><input type="text" name="location" id="location" placeholder="Location" required></div>
+  <div class="signup-step hidden">
+    <label for="avatar" class="custom-file-upload">Upload Profile Picture</label>
+    <input type="file" id="avatar" name="avatar" accept="image/*" required>
+  </div>
+  <div class="signup-step hidden"><input type="text" name="adminToken" placeholder="Admin Token (if provided)" /></div>
+
+  <button type="submit" class="signup-step hidden">Sign Up</button>
   <div class="error" id="errorMsg"></div>
 </form>
+
 
   <div class="toggle-link">Already Registered? <a onclick="toggleView('login')">Login Here</a></div>
 </div>
@@ -322,7 +439,7 @@
 }
 
     try {
-      const res = await fetch('https://connecther.onrender.com/api/auth/register', {
+      const res = await fetch('http://localhost:3000/api/auth/register', {
         method: 'POST',
         body: formData
       });
@@ -383,7 +500,7 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
   if (otp) {
     // 🟡 Second phase: OTP verification
     try {
-      const res = await fetch('https://connecther.onrender.com/api/auth/verify-otp', {
+      const res = await fetch('http://localhost:3000/api/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: tempUserId, otpCode: otp })
@@ -441,7 +558,7 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
   } else {
     // 🔵 First phase: username/password login
     try {
-      const res = await fetch('https://connecther.onrender.com/api/auth/login', {
+      const res = await fetch('http://localhost:3000/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ identifier: input, password })
@@ -499,7 +616,7 @@ async function requestResetCode() {
   if (!email) return alert("Please enter your email.");
 
   try {
-    const res = await fetch('https://connecther.onrender.com/api/auth/forgot-password', {
+    const res = await fetch('http://localhost:3000/api/auth/forgot-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email })
@@ -528,7 +645,7 @@ async function resetPassword() {
   if (!email || !code || !newPassword) return alert("All fields are required.");
 
   try {
-    const res = await fetch('https://connecther.onrender.com/api/auth/reset-password', {
+    const res = await fetch('http://localhost:3000/api/auth/reset-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, code, newPassword })
@@ -546,8 +663,57 @@ async function resetPassword() {
   }
 }
 
+// 👣 Progressive field reveal on Sign Up
+const formSteps = document.querySelectorAll("#signup-form .signup-step");
+let currentStep = 0;
+
+document.getElementById("firstName").addEventListener("input", function () {
+  if (this.value.trim() !== "" && currentStep < formSteps.length) {
+    formSteps[currentStep].classList.remove("hidden");
+    currentStep++;
+  }
+});
+
+formSteps.forEach((stepDiv, index) => {
+  const input = stepDiv.querySelector("input, select");
+  if (input) {
+    input.addEventListener("input", () => {
+      if (input.value.trim() !== "" && currentStep < formSteps.length) {
+        formSteps[currentStep].classList.remove("hidden");
+        currentStep++;
+      }
+    });
+  }
+});
+
+// 👣 Progressive field reveal on Sign Up
+const signupFields = document.querySelectorAll("#signup-form .signup-step");
+let currentIndex = 0;
+
+function handleFieldInput(index) {
+  const current = signupFields[index];
+  const input = current.querySelector("input, select, .date-input-wrapper");
+  
+  if (!input) return;
+
+  const targetInput = input.querySelector("input, select") || input;
+  targetInput.addEventListener("input", () => {
+    if (targetInput.value.trim() !== "" && signupFields[index + 1]) {
+      signupFields[index + 1].classList.add("visible");
+      currentIndex++;
+      handleFieldInput(currentIndex);
+    }
+  });
+}
+
+// Start listening once First Name is filled
+document.getElementById("firstName").addEventListener("input", function () {
+  if (this.value.trim() !== "") {
+    signupFields[0].classList.add("visible");
+    handleFieldInput(0);
+  }
+});
 </script>
-
-
+<script src="theme.js" defer></script>
 </body>
 </html>
